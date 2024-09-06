@@ -8,24 +8,40 @@ const barterController = {
         try {
             await connection.beginTransaction()
 
-            const {email, nama_lengkap, password, nomor_telepon, role, lokasi} = req.body
+            const {email, nama_lengkap, password, nomor_telepon, role, lokasi, provinsi, kota, kecamatan} = req.body
             const hashedPassword = await bcrypt.hash(password, 12)
 
-            const sql = 'INSERT INTO pengguna (email, nama_lengkap, password, nomor_telepon, role, lokasi) VALUES (?, ?, ?, ?, ?, ?)'
+            const sqlPengguna1 = 'INSERT INTO pengguna (email, nama_lengkap, password, nomor_telepon, role) VALUES (?, ?, ?, ?, ?)'
 
-            const [response] = await connection.query(sql, [email, nama_lengkap, hashedPassword, nomor_telepon, role, lokasi])
+            const sqlPengguna2 = 'UPDATE pengguna SET lokasi = ?'
+
+            const sqlLokasi = 'INSERT INTO lokasi (user_id, provinsi, kota, kecamatan) VALUES (?, ?, ?, ?)'
+
+            const [response] = await connection.query(sqlPengguna1, [email, nama_lengkap, hashedPassword, nomor_telepon, role])
+
+            if (response) {
+                const [responseLokasi] = await connection.query(sqlLokasi, [response.insertId, provinsi, kota, kecamatan])
+
+                if (responseLokasi) {
+                    const [responseUpdate] =  await connection.query(sqlPengguna2, [responseLokasi.insertId])
+
+                    if (responseUpdate) {
+                        res.status(201).json({
+                            statusCode: 201,
+                            message: 'User creation success',
+                        })
+                    }
+                }
+            }
 
             await connection.commit()
 
-            if (response) {
-                res.status(201).json({
-                    message: 'User berhasil dibuat'
-                })
-            }
         } catch (error) {
+            await connection.rollback()
             console.error(error)
             res.status(500).json({
-                message: 'Gagal membuat user',
+                statusCode: 500,
+                message: 'Failed to create new user',
                 error: error.message
             })
         } finally {
@@ -52,7 +68,8 @@ const barterController = {
                 const isValid = await bcrypt.compare(password, userData.password)
                 if (!isValid) {
                     res.status(401).json({
-                        message: 'Data login tidak valid'
+                        statusCode: 401,
+                        message: 'Data is not valid'
                     })
                 } else {
                     const accessToken = jwt.sign({
@@ -75,8 +92,9 @@ const barterController = {
                         path: '/',
                         sameSite: 'strict'
                     })
-                    res.json({
-                        message: 'Login berhasil',
+                    res.status(201).json({
+                        statusCode: 201,
+                        message: 'Login success!',
                         accessToken: accessToken,
                         userId: userData.user_id
                     })
@@ -86,6 +104,7 @@ const barterController = {
         } catch (error) {
             console.error(error)
             res.status(500).json({
+                statusCode: 500,
                 message: 'Internal Server Error',
                 error: error.message
             })
@@ -97,19 +116,38 @@ const barterController = {
     logout: async (req, res) => {
         res.clearCookie('refreshToken')
         res.status(201).json({
-            message: 'Logout berhasil'
+            statusCode: 201,
+            message: 'Logout succesful'
         })
     },
 
-    authenticateJWT: (req, res, next) => {
-        const token = req.header('Authorization')?.split(' ')[1];
-        if (!token) return res.status(401).json({ message: 'Access denied' });
-      
-        jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-          if (err) return res.status(403).json({ message: 'Invalid token' });
-          req.user = user;
-          next();
-        });
+    postinganBarang: async (req, res) => {
+        const connection = await pool.getConnection()
+        try {
+            await connection.beginTransaction()
+
+            const sql = 'SELECT * FROM barang'
+
+            const [response] = await connection.query(sql)
+
+            if (response) {
+                res.status(200).json(response)({
+                    statusCode: 200,
+                    message: "Successfully retrieved item",
+                    data: response.data
+                })
+            }
+        } catch (error) {
+            await connection.rollback()
+            console.error(error)
+            res.status(500).json({
+                statusCode: 500,
+                message: 'Internal Server Error',
+                error: error.message
+            })
+        } finally {
+            connection.release()
+        }
     },
 
     pengajuanBarang: async (req, res) => {
@@ -126,22 +164,56 @@ const barterController = {
 
             await connection.commit()
 
-            if (response) {
+            if (response.affectedRows === 1) {
                 res.status(201).json({
-                    message: "Berhasil mengajukan barang"
+                    statusCode: 201,
+                    message: "Successfully submitted the goods"
                 })
             }
         } catch (error) {
             console.error(error)
             res.status(500).json({
+                statusCode: 500,
                 message: 'Internal Server Error',
                 error: error.message
             })
         } finally {
             connection.release()
         }
-    }
+    },
+
+    chat: async (req, res) => {
+        const connection = await pool.getConnection()
+        try {
+            await connection.beginTransaction()
+
+            const {userId, tujuan} = req.query
+
+            const sql = 'SELECT sender, receiver, chat, timestamp FROM chat WHERE (sender = ? AND receiver = ?) OR (sender = ? AND receiver = ?) ORDER BY timestamp ASC'
+
+            const [response] = pool.query(sql, [userId, tujuan, userId, tujuan])
+
+            await connection.commit()
+
+            if (response) {
+                res.status(201).json({
+                    statusCode: 201,
+                    message: "Successfully retrieved chat data",
+                    data: response.data
+                })
+            }
+        } catch (error) {
+            await connection.rollback()
+            console.error(error)
+            res.status(500).json({
+                statusCode: 500,
+                message: "Failed to retrieved chat data"
+            })
+        } finally {
+            connection.release()
+        }
+    },
 
 }
 
-module.exports = barterController
+module.exports = barterController;
