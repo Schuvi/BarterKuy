@@ -8,7 +8,7 @@ const barterController = {
         try {
             await connection.beginTransaction()
 
-            const {email, nama_lengkap, password, nomor_telepon, role, lokasi, provinsi, kota, kecamatan} = req.body
+            const {email, nama_lengkap, password, nomor_telepon, role, provinsi, kota, kecamatan} = req.body
             const hashedPassword = await bcrypt.hash(password, 12)
 
             const sqlPengguna1 = 'INSERT INTO pengguna (email, nama_lengkap, password, nomor_telepon, role) VALUES (?, ?, ?, ?, ?)'
@@ -54,12 +54,12 @@ const barterController = {
         try {
             await connection.beginTransaction()
 
-            const {nama_lengkap, password} = req.body
+            const {email, password} = req.body
 
 
-            const sql = 'SELECT * FROM pengguna WHERE nama_lengkap = ?'
+            const sql = 'SELECT * FROM pengguna WHERE email = ?'
 
-            const [response] = await connection.query(sql, [nama_lengkap])
+            const [response] = await connection.query(sql, [email])
 
             await connection.commit()
 
@@ -74,14 +74,14 @@ const barterController = {
                 } else {
                     const accessToken = jwt.sign({
                         id: userData.user_id,
-                        username: userData.nama_lengkap
+                        username: userData.email
                     }, process.env.JWT_SECRET, {
                         expiresIn: process.env.JWT_EXPIRES_IN
                     })
 
                     const refreshToken = jwt.sign({
                         id: userData.user_id,
-                        username: userData.nama_lengkap
+                        username: userData.email
                     }, process.env.JWT_REFRESH_SECRET, {
                         expiresIn: process.env.JWT_REFRESH_EXPIRES_IN
                     })
@@ -179,6 +179,36 @@ const barterController = {
             })
         } finally {
             connection.release()
+        }
+    },
+
+    waitingListBarang: async (req, res) => {
+        const connection = await pool.getConnection()
+
+        try {
+            await connection.beginTransaction()
+
+            const {user_id, status} = req.query
+
+            const sql = 'SELECT * FROM barang WHERE user_id = ? AND status_pengajuan = ?'
+
+            const [response] = await connection.query(sql, [user_id, status])
+
+            if (response.length >= 1) {
+                res.status(200).json({
+                    statusCode: 200,
+                    message: "List of goods waiting for approval",
+                    data: response
+                })
+            }
+        } catch (error) {
+            await connection.rollback()
+            console.error(error)
+            res.status(500).json({
+                statusCode: 500,
+                message: 'Internal Server Error',
+                error: error.message
+            })
         }
     },
 
