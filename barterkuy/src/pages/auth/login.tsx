@@ -4,14 +4,15 @@ import { jwtDecode } from "jwt-decode";
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import Swal from 'sweetalert2';
-import withReactContent from 'sweetalert2-react-content';
-import { Button } from "@/components/ui/button"
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
+import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage  } from '@/components/ui/form'
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Link } from "react-router-dom";
 
 interface LoginWithGoogle {
   email?: string;
@@ -20,8 +21,8 @@ interface LoginWithGoogle {
 }
 
 const loginFormSchema = z.object({
-    email: z.string().email('Email tidak valid'),
-    password: z.string().min(7, 'Password minimal harus 7 karakter')
+  email: z.string().email("Email tidak valid"),
+  password: z.string().min(7, "Password minimal harus 7 karakter"),
 });
 
 type LoginFormSchema = z.infer<typeof loginFormSchema>;
@@ -29,40 +30,40 @@ type LoginFormSchema = z.infer<typeof loginFormSchema>;
 function Login() {
   const [showPassword, setShowPassword] = useState(false);
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
-  const MySwal = withReactContent(Swal)
+  const MySwal = withReactContent(Swal);
 
   const form = useForm<LoginFormSchema>({
     resolver: zodResolver(loginFormSchema),
-  })
+  });
 
   const { handleSubmit, control } = form;
 
   const handleLogin = handleSubmit(async (values) => {
-    const formData: FormData = new FormData()
-    formData.append('email', values.email)
-    formData.append('password', values.password)
+    const formData: FormData = new FormData();
+    formData.append("email", values.email);
+    formData.append("password", values.password);
 
-    const response = await axios.post(import.meta.env.VITE_API_ENDPOINT + '/login', formData, {
-        headers: {
-            'Content-Type': 'application/json',
-        }
-    })
+    const response = await axios.post(import.meta.env.VITE_API_ENDPOINT + "/login", formData, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
 
     if (response.data.message === "Login success!") {
-        MySwal.fire({
-            title: 'Sign In sukses',
-            icon: 'success',
-            confirmButtonText: 'Konfirmasi'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.localStorage.setItem('token', response.data.accessToken)
-                navigate('/home')
-            }
-        })
+      MySwal.fire({
+        title: "Sign In sukses",
+        icon: "success",
+        confirmButtonText: "Konfirmasi",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.localStorage.setItem("token", response.data.accessToken);
+          navigate("/home");
+        }
+      });
     }
-  })
+  });
 
   return (
     <>
@@ -107,49 +108,54 @@ function Login() {
 
           <Form {...form}>
             <form onSubmit={handleLogin} className="container flex flex-col p-3 pt-0">
-                <FormField
-                    control={control}
-                    name="email"
-                    render={({ field }) => {
-                        return (
-                            <FormItem>
-                                <FormLabel>Email</FormLabel>
-                                <FormControl>
-                                    <Input {...field}/>
-                                </FormControl>
-                                <FormMessage/>
-                            </FormItem>
-                        )
-                    }}
-                />
+              <FormField
+                control={control}
+                name="email"
+                render={({ field }) => {
+                  return (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  );
+                }}
+              />
 
-                <FormField
-                    control={control}
-                    name="password"
-                    render={({ field }) => {
-                        return (
-                            <FormItem>
-                                <FormLabel>Password</FormLabel>
-                                <FormControl>
-                                    <Input type={showPassword === false ? "password" : "text"} {...field}/>
-                                </FormControl>
-                                <FormMessage/>
-                            </FormItem>
-                        )
-                    }}
-                />
+              <FormField
+                control={control}
+                name="password"
+                render={({ field }) => {
+                  return (
+                    <FormItem>
+                      <FormLabel>Password</FormLabel>
+                      <FormControl>
+                        <Input type={showPassword === false ? "password" : "text"} {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  );
+                }}
+              />
 
-                <div className="mt-2 flex">
-                    <input type="checkbox" id="showpass" className="border mr-2" onClick={() => setShowPassword(!showPassword)} />
-                    <label htmlFor="showpass">Tampilkan Password</label>
-                </div>
+              <div className="mt-2 flex">
+                <input type="checkbox" id="showpass" className="border mr-2" onClick={() => setShowPassword(!showPassword)} />
+                <label htmlFor="showpass">Tampilkan Password</label>
+              </div>
 
-                <div className="container text-center mt-5 mb-5">
-                    <Button type="submit" className="border p-2 w-[50vw] rounded-lg bg-color2 text-white font-bold active:bg-white">Sign In</Button>
-                </div>
+              <div className="container flex justify-center mt-5">
+                <h1 className="mr-1">Belum memiliki akun?</h1><Link to={'/signup'} className="text-color2">Daftar disini!</Link>
+              </div>
+
+              <div className="container text-center mt-2 mb-5">
+                <Button type="submit" className="border p-2 w-[50vw] rounded-lg bg-color2 text-white font-bold active:bg-white">
+                  Sign In
+                </Button>
+              </div>
             </form>
           </Form>
-
         </div>
       </section>
     </>
