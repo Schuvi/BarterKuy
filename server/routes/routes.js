@@ -18,5 +18,7 @@ const authenticateJWT = (req, res, next) => {
 router.post('/register', barterController.register)
 router.post('/login', barterController.login)
 router.post('/logout', authenticateJWT, barterController.logout)
+router.post('/otp', barterController.otp)
+router.post('/verify-otp', barterController.verifyOtp)
 
 module.exports = router
