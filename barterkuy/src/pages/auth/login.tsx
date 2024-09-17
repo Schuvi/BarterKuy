@@ -75,6 +75,7 @@ function Login() {
             transformation={[
               {
                 quality: "10",
+
               },
             ]}
             className="w-[90vw]"

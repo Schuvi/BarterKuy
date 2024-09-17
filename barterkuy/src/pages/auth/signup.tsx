@@ -10,6 +10,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { IKImage } from "imagekitio-react";
+import { useDispatch } from "react-redux";
+import { update } from "@/redux/userSlice";
 
 const signFormScheme = z
   .object({
@@ -37,6 +39,8 @@ function Signup() {
       role: "user",
     },
   });
+
+  const dispatch = useDispatch();
 
   const navigate = useNavigate();
 
@@ -69,7 +73,7 @@ function Signup() {
     formData.append("kota", values.kota);
     formData.append("kecamatan", values.kecamatan);
 
-    console.log(formData.get("email"))
+    console.log(formData.get("email"));
 
     const response = await axios.post(import.meta.env.VITE_API_ENDPOINT + "/register", formData, {
       headers: {
@@ -77,8 +81,12 @@ function Signup() {
       },
     });
 
+    const emailRes = values.email;
+
     if (response.data.message === "User creation success") {
-      navigate("/otpVerification", { state: { email: values.email } });
+      alert("Success");
+      dispatch(update({ email: emailRes }));
+      navigate("/otpVerification");
     }
   });
 

@@ -158,15 +158,15 @@ const barterController = {
         try {
             await connection.beginTransaction()
 
-            const sql = 'SELECT * FROM barang'
+            const sql = 'SELECT id, nama_barang, deskripsi_barang, barang.lokasi, jenis_penawaran, status_pengajuan, status_barter, kategori, pengguna.nama_lengkap, link_gambar from barang JOIN kategori_barang ON barang.kategori_barang=kategori_barang.kategori_id JOIN pengguna ON barang.user_id=pengguna.user_id JOIN gambar_barang ON gambar_barang.barang_id=barang.id'
 
             const [response] = await connection.query(sql)
 
             if (response) {
-                res.status(200).json(response)({
+                res.status(200).json({
                     statusCode: 200,
                     message: "Successfully retrieved item",
-                    data: response.data
+                    data: response
                 })
             }
         } catch (error) {
