@@ -11,6 +11,7 @@ export const usePosts = () => {
     return useQuery({
         queryKey: ['posts'],
         queryFn: fetchPosts,
-        retry: 2
+        retry: 2,
+        refetchInterval: 60000
     })
 }
