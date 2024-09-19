@@ -4,6 +4,7 @@ import Home from "./pages/home";
 import Signup from "./pages/auth/signup";
 import OtpVerification from "./pages/auth/otpVerification";
 import Navbar from "./components/navbar/navbar";
+import DetailBarang from "./pages/detail/detailBarang";
 
 function App() {
   const location = useLocation();
@@ -21,6 +22,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/otpVerification" element={<OtpVerification />} />
+            <Route path="/detail/:id" element={<DetailBarang />} />
           </Routes>
         </div>
       </div>

@@ -5,8 +5,8 @@ import locationImg from "../assets/location_filled_500px.png";
 import { usePosts } from "@/function/function";
 import { IKImage } from "imagekitio-react";
 import LocationFilter from "@/components/modal/locationFilter";
-import { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 
 interface postsData {
@@ -29,10 +29,14 @@ interface ReducedPost extends Omit<postsData, "link_gambar"> {
 function Home() {
   const accessToken = window.localStorage.getItem("token");
   const navigate = useNavigate();
-  const [showModal, setShowModal] = useState<boolean>(false)
-  const location = useSelector((state: RootState) => state.user.kabupaten)
-  const dispatch = useDispatch()
-  const { data: posts } = usePosts();
+  const [showModal, setShowModal] = useState<boolean>(false);
+  const location = useSelector((state: RootState) => state.user.kabupaten);
+  const kategori = useSelector((state: RootState) => state.user.kategori);
+  const { data: posts } = usePosts(location, kategori);
+
+  useEffect(() => {
+    console.log(kategori);
+  }, [kategori]);
 
   const logout = useMutation({
     mutationFn: async () => {
@@ -84,7 +88,9 @@ function Home() {
 
         <div className="container h-full flex justify-end">
           <img src={locationImg} alt="location logo" className="w-[7vw] h-[3vh]" />
-          <p onClick={() => setShowModal(!showModal)} className="underline decoration-solid text-color2">{location}</p>
+          <p onClick={() => setShowModal(!showModal)} className="underline decoration-solid text-color2">
+            {location}
+          </p>
         </div>
       </section>
 
@@ -104,7 +110,7 @@ function Home() {
               />
 
               <div className="container mt-2">
-                <h1 className="font-bold text-md mb-2">{item.nama_barang.length >= 15 ? `${item.nama_barang.slice(0,15)}...` : item.nama_barang}</h1>
+                <h1 className="font-bold text-md mb-2">{item.nama_barang.length >= 15 ? `${item.nama_barang.slice(0, 15)}...` : item.nama_barang}</h1>
 
                 <p className="mb-2 text-sm">{item.deskripsi_barang.length >= 50 ? `${item.deskripsi_barang.slice(0, 50)}...` : item.deskripsi_barang}</p>
 
@@ -115,9 +121,7 @@ function Home() {
         </div>
       </section>
 
-      {showModal && <LocationFilter onClose={() => setShowModal(!showModal)}/>}
-
-      
+      {showModal && <LocationFilter onClose={() => setShowModal(!showModal)} />}
 
       <button onClick={() => handleLogout()} hidden={accessToken === null ? true : false}>
         logout

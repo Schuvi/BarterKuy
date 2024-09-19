@@ -159,21 +159,36 @@ const barterController = {
         try {
             await connection.beginTransaction()
 
-            const {lokasi} = req.query
+            const {lokasi, kategori} = req.query
 
             console.log(req.query)
 
             const sql = 'SELECT id, nama_barang, deskripsi_barang, barang.lokasi, jenis_penawaran, status_pengajuan, status_barter, kategori, pengguna.nama_lengkap, link_gambar from barang JOIN kategori_barang ON barang.kategori_barang=kategori_barang.kategori_id JOIN pengguna ON barang.user_id=pengguna.user_id JOIN gambar_barang ON gambar_barang.barang_id=barang.id WHERE status_pengajuan = "diterima" AND barang.lokasi = ?'
 
-            const [response] = await connection.query(sql, [lokasi])
+            const sqlKategori = 'SELECT id, nama_barang, deskripsi_barang, barang.lokasi, jenis_penawaran, status_pengajuan, status_barter, kategori, pengguna.nama_lengkap, link_gambar from barang JOIN kategori_barang ON barang.kategori_barang=kategori_barang.kategori_id JOIN pengguna ON barang.user_id=pengguna.user_id JOIN gambar_barang ON gambar_barang.barang_id=barang.id WHERE status_pengajuan = "diterima" AND barang.lokasi = ? AND  kategori_barang = ?'
 
-            if (response) {
-                res.status(200).json({
-                    statusCode: 200,
-                    message: "Successfully retrieved item",
-                    data: response
-                })
+            if (lokasi && kategori) {
+                const [response] = await connection.query(sqlKategori, [lokasi, kategori])
+
+                if (response) {
+                    res.status(200).json({
+                        statusCode: 200,
+                        message: "Successfully retrieved item",
+                        data: response
+                    })
+                }  
+            } else if (lokasi) {
+                const [response] = await connection.query(sql, [lokasi])
+
+                if (response) {
+                    res.status(200).json({
+                        statusCode: 200,
+                        message: "Successfully retrieved item",
+                        data: response
+                    })
+                }
             }
+
         } catch (error) {
             await connection.rollback()
             console.error(error)
