@@ -4,6 +4,10 @@ import { useNavigate } from "react-router-dom";
 import locationImg from "../assets/location_filled_500px.png";
 import { usePosts } from "@/function/function";
 import { IKImage } from "imagekitio-react";
+import LocationFilter from "@/components/modal/locationFilter";
+import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
 
 interface postsData {
   id: number;
@@ -25,6 +29,9 @@ interface ReducedPost extends Omit<postsData, "link_gambar"> {
 function Home() {
   const accessToken = window.localStorage.getItem("token");
   const navigate = useNavigate();
+  const [showModal, setShowModal] = useState<boolean>(false)
+  const location = useSelector((state: RootState) => state.user.kabupaten)
+  const dispatch = useDispatch()
   const { data: posts } = usePosts();
 
   const logout = useMutation({
@@ -77,7 +84,7 @@ function Home() {
 
         <div className="container h-full flex justify-end">
           <img src={locationImg} alt="location logo" className="w-[7vw] h-[3vh]" />
-          <p>Jakarta Timur - 5km</p>
+          <p onClick={() => setShowModal(!showModal)} className="underline decoration-solid text-color2">{location}</p>
         </div>
       </section>
 
@@ -107,6 +114,10 @@ function Home() {
           ))}
         </div>
       </section>
+
+      {showModal && <LocationFilter onClose={() => setShowModal(!showModal)}/>}
+
+      
 
       <button onClick={() => handleLogout()} hidden={accessToken === null ? true : false}>
         logout

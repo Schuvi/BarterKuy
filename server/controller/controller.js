@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken')
 const pool = require('../database/db')
 const otpGenerator = require('otp-generator')
 const mailSender = require('../utils/mailSender')
+const axios = require("axios")
 
 const barterController = {
     register: async (req, res) => {
@@ -158,9 +159,13 @@ const barterController = {
         try {
             await connection.beginTransaction()
 
-            const sql = 'SELECT id, nama_barang, deskripsi_barang, barang.lokasi, jenis_penawaran, status_pengajuan, status_barter, kategori, pengguna.nama_lengkap, link_gambar from barang JOIN kategori_barang ON barang.kategori_barang=kategori_barang.kategori_id JOIN pengguna ON barang.user_id=pengguna.user_id JOIN gambar_barang ON gambar_barang.barang_id=barang.id WHERE status_pengajuan = "diterima"'
+            const {lokasi} = req.query
 
-            const [response] = await connection.query(sql)
+            console.log(req.query)
+
+            const sql = 'SELECT id, nama_barang, deskripsi_barang, barang.lokasi, jenis_penawaran, status_pengajuan, status_barter, kategori, pengguna.nama_lengkap, link_gambar from barang JOIN kategori_barang ON barang.kategori_barang=kategori_barang.kategori_id JOIN pengguna ON barang.user_id=pengguna.user_id JOIN gambar_barang ON gambar_barang.barang_id=barang.id WHERE status_pengajuan = "diterima" AND barang.lokasi = ?'
+
+            const [response] = await connection.query(sql, [lokasi])
 
             if (response) {
                 res.status(200).json({
@@ -379,6 +384,37 @@ const barterController = {
             connection.release()
         }
     },
+
+    fetchKabupaten: async (req, res) => {
+        try {
+            const {prov} = req.query
+
+            const fetchProv = await axios.get('https://alamat.thecloudalert.com/api/provinsi/get')
+
+            const provinsi = fetchProv.data.result.find((item) => item.text === prov )
+
+            const provinsiData = provinsi.id
+
+            const fetchKab = await axios.get(`https://alamat.thecloudalert.com/api/kabkota/get/?d_provinsi_id=${provinsiData}`)
+
+            const kabupaten = fetchKab.data.result
+
+            if (kabupaten) {
+                res.status(200).json({
+                    statusCode: 200,
+                    data: kabupaten
+                })
+            }
+
+        } catch (error) {
+            console.error(error)
+            res.status(500).json({
+                statusCode: 500,
+                state: "error",
+                message: error.message
+            })
+        }
+    }
 
 }
 
