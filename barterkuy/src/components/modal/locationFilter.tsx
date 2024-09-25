@@ -8,7 +8,7 @@ import { useForm } from "react-hook-form";
 import { update } from "@/redux/userSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
-import { fetchKabupaten } from "@/function/function";
+import { fetchKabupaten } from "@/hooks/fetchHooks";
 
 interface LocationFilterProps {
   onClose: () => void;
@@ -23,7 +23,7 @@ type filterLocationType = z.infer<typeof locationFilter>;
 function LocationFilter({ onClose }: LocationFilterProps) {
   const location = useSelector((state: RootState) => state.user.kabupaten);
   const provinsi = useSelector((state: RootState) => state.user.provinsi);
-  const { data: kab } = fetchKabupaten(provinsi);
+  const { data: kab, isLoading } = fetchKabupaten(provinsi);
 
   const form = useForm<filterLocationType>({
     resolver: zodResolver(locationFilter),
@@ -64,11 +64,13 @@ function LocationFilter({ onClose }: LocationFilterProps) {
                           <SelectValue placeholder="Kabupaten / Kota" />
                         </SelectTrigger>
                         <SelectContent>
-                          {kab?.data.map((item: { id: string; text: string }) => (
-                            <SelectItem key={item.id} value={item.text}>
-                              {item.text}
-                            </SelectItem>
-                          ))}
+                          {isLoading
+                            ? "Loading.."
+                            : kab?.data.map((item: { id: string; text: string }) => (
+                                <SelectItem key={item.id} value={item.text}>
+                                  {item.text}
+                                </SelectItem>
+                              ))}
                         </SelectContent>
                       </Select>
                     );

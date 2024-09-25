@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useQuery } from "@tanstack/react-query";
+import { fetchProv, fetchKot, fetchKec } from "@/hooks/fetchHooks";
 import { useState } from "react";
 import { IKImage } from "imagekitio-react";
 import { useDispatch } from "react-redux";
@@ -46,13 +46,13 @@ function Signup() {
 
   const { handleSubmit, control } = form;
 
-  const [selectProvinsiId, setSelectProvinsiId] = useState<string | null>();
-  const [selectKabupatenId, setSelectKabupatenId] = useState<string | null>();
+  const [selectProvinsiId, setSelectProvinsiId] = useState<string>("");
+  const [selectKabupatenId, setSelectKabupatenId] = useState<string>("");
   const [QueryFetchKab, setQueryFetchKab] = useState<boolean>(false);
   const [QueryFetchKec, setQueryFetchKec] = useState<boolean>(false);
   const [showPass, setShowPass] = useState<boolean>(false);
 
-  const handleSelectionKab = (id: string) => {
+  const handleSelectionKab = (id: string ) => {
     setSelectProvinsiId(id);
     setQueryFetchKab(true);
   };
@@ -90,43 +90,11 @@ function Signup() {
     }
   });
 
-  const fetchProvinsi = async () => {
-    const response = await axios.get("https://alamat.thecloudalert.com/api/provinsi/get");
-    return response.data.result;
-  };
+  const {data: prov} = fetchProv()
 
-  const fetchKota = async (provId: string) => {
-    const response = await axios.get(`https://alamat.thecloudalert.com/api/kabkota/get/?d_provinsi_id=${provId}`);
-    return response.data.result;
-  };
+  const {data: kot} = fetchKot(selectProvinsiId, QueryFetchKab)
 
-  const fetchKecamatan = async (KotId: string) => {
-    const response = await axios.get(`https://alamat.thecloudalert.com/api/kecamatan/get/?d_kabkota_id=${KotId}`);
-    return response.data.result;
-  };
-
-  const { data: prov } = useQuery({
-    queryKey: ["provinsi"],
-    queryFn: fetchProvinsi,
-    refetchInterval: false,
-    retry: 2,
-  });
-
-  const { data: kot } = useQuery({
-    queryKey: ["kota", selectProvinsiId],
-    queryFn: async ({ queryKey }) => fetchKota(queryKey[1] as string),
-    refetchInterval: false,
-    retry: 2,
-    enabled: QueryFetchKab,
-  });
-
-  const { data: kec } = useQuery({
-    queryKey: ["kecamatan", selectKabupatenId],
-    queryFn: async ({ queryKey }) => fetchKecamatan(queryKey[1] as string),
-    refetchInterval: false,
-    retry: 2,
-    enabled: QueryFetchKec,
-  });
+  const {data: kec} = fetchKec(selectKabupatenId, QueryFetchKec)
 
   return (
     <>
@@ -255,6 +223,7 @@ function Signup() {
                     <Select
                       onValueChange={(value) => {
                         const kota = kot?.find((item: { id: string; text: string }) => item.text === value);
+                        console.log(kota)
                         if (kota) {
                           handleSelectionKec(kota.id);
                           field.onChange(kota.text);

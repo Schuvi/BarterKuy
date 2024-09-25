@@ -167,26 +167,125 @@ const barterController = {
 
             const sqlKategori = 'SELECT id, nama_barang, deskripsi_barang, barang.lokasi, jenis_penawaran, status_pengajuan, status_barter, kategori, pengguna.nama_lengkap, link_gambar from barang JOIN kategori_barang ON barang.kategori_barang=kategori_barang.kategori_id JOIN pengguna ON barang.user_id=pengguna.user_id JOIN gambar_barang ON gambar_barang.barang_id=barang.id WHERE status_pengajuan = "diterima" AND barang.lokasi = ? AND  kategori_barang = ?'
 
+            await connection.commit()
+
             if (lokasi && kategori) {
                 const [response] = await connection.query(sqlKategori, [lokasi, kategori])
 
-                if (response) {
-                    res.status(200).json({
-                        statusCode: 200,
-                        message: "Successfully retrieved item",
-                        data: response
+                if (response.length > 0) {
+                    const reducedData = response.reduce((acc, item) => {
+                        const existing = acc.find((el) => el.id === item.id)
+
+                        if (existing) {
+                            existing.link_gambar.push(item.link_gambar)
+                        } else {
+                            acc.push({
+                                ...item,
+                                link_gambar: [item.link_gambar]
+                            })
+                        }
+
+                        return acc
+                    }, [])
+
+                    if (reducedData) {
+                        res.status(200).json({
+                            statusCode: 200,
+                            data: reducedData
+                        })
+                    }
+                } else {
+                    res.status(404).json({
+                        statusCode: 404,
+                        message: 'Data not found'
                     })
-                }  
+                }
+
             } else if (lokasi) {
                 const [response] = await connection.query(sql, [lokasi])
 
-                if (response) {
-                    res.status(200).json({
-                        statusCode: 200,
-                        message: "Successfully retrieved item",
-                        data: response
+                if (response.length > 0) {
+                    const reducedData = response.reduce((acc, item) => {
+                        const existing = acc.find((el) => el.id === item.id)
+
+                        if (existing) {
+                            existing.link_gambar.push(item.link_gambar)
+                        } else {
+                            acc.push({
+                                ...item,
+                                link_gambar: [item.link_gambar]
+                            })
+                        }
+
+                        return acc
+                    }, [])
+
+                    if (reducedData) {
+                        res.status(200).json({
+                            statusCode: 200,
+                            data: reducedData
+                        })
+                    }
+                } else {
+                    res.status(404).json({
+                        statusCode: 404,
+                        message: 'Data not found'
                     })
                 }
+            }
+
+        } catch (error) {
+            await connection.rollback()
+            console.error(error)
+            res.status(500).json({
+                statusCode: 500,
+                message: 'Internal Server Error',
+                error: error.message
+            })
+        } finally {
+            connection.release()
+        }
+    },
+
+    detailBarang: async (req, res) => {
+        const connection = await pool.getConnection()
+        try {
+            await connection.beginTransaction()      
+
+            const {lokasi, id} = req.query
+
+            const sqlDetail = 'SELECT id, nama_barang, deskripsi_barang, barang.lokasi, jenis_penawaran, status_pengajuan, status_barter, kategori, pengguna.user_id, pengguna.nama_lengkap, pengguna.gambar_profile, lokasi.kota, lokasi.kecamatan, link_gambar from barang JOIN kategori_barang ON barang.kategori_barang=kategori_barang.kategori_id JOIN pengguna ON barang.user_id=pengguna.user_id JOIN gambar_barang ON gambar_barang.barang_id=barang.id JOIN lokasi ON pengguna.lokasi=lokasi.id_lokasi WHERE status_pengajuan = "diterima" AND barang.lokasi = ? AND id = ?'
+
+            const [response] = await connection.query(sqlDetail, [lokasi, id])
+
+            await connection.commit()
+
+            if (response.length > 0) {
+                const reducedData = response.reduce((acc, item) => {
+                    const existing = acc.find((el) => el.id === item.id);
+    
+                    if (existing) {
+                        existing.link_gambar.push(item.link_gambar);
+                    } else {
+                        acc.push({
+                            ...item,
+                            link_gambar: [item.link_gambar],
+                        });
+                    }
+    
+                    return acc;
+                }, []);
+    
+                res.status(200).json({
+                    statusCode: 200,
+                    data: reducedData,
+                });
+
+            } else {
+                res.status(404).json({
+                    statusCode: 404,
+                    message: 'Data not found',
+                });
             }
 
         } catch (error) {
@@ -428,6 +527,44 @@ const barterController = {
                 state: "error",
                 message: error.message
             })
+        }
+    },
+
+    laporkanPengguna: async (req, res) => {
+        const connection = await pool.getConnection()
+
+        try {
+            await connection.beginTransaction()
+
+            const {reporter_id, target_id, alasan, isi_laporan} = req.body
+
+            console.log(req.body)
+
+            const sqlLaporkan = 'INSERT INTO laporan (reporter_id, target_id, alasan, isi_laporan) VALUES (?, ?, ?, ?)'
+
+            const [response] = await connection.query(sqlLaporkan, [reporter_id, target_id, alasan, isi_laporan])
+
+            await connection.commit()
+
+            if (response.affectedRows === 1) {
+                res.status(200).json({
+                    statusCode: 200,
+                    message: "Laporan berhasil disimpan"
+                })
+
+                console.log("affectedRows", response.affectedRows)
+            }
+        } catch (error) {
+            await connection.rollback()
+            console.error(error.message)
+
+            res.status(500).json({
+                statusCode: 500,
+                state: "error",
+                message: error.message
+            })
+        } finally {
+            connection.release()
         }
     }
 

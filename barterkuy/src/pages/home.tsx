@@ -2,12 +2,14 @@ import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import locationImg from "../assets/location_filled_500px.png";
-import { usePosts } from "@/function/function";
+import { usePosts } from "@/hooks/fetchHooks";
 import { IKImage } from "imagekitio-react";
 import LocationFilter from "@/components/modal/locationFilter";
-import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useState } from "react";
+import { update } from "@/redux/userSlice";
+import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/redux/store";
+import like from "../assets/hearts_500px.png";
 
 interface postsData {
   id: number;
@@ -22,10 +24,6 @@ interface postsData {
   link_gambar: string;
 }
 
-interface ReducedPost extends Omit<postsData, "link_gambar"> {
-  link_gambar: string[];
-}
-
 function Home() {
   const accessToken = window.localStorage.getItem("token");
   const navigate = useNavigate();
@@ -34,9 +32,7 @@ function Home() {
   const kategori = useSelector((state: RootState) => state.user.kategori);
   const { data: posts } = usePosts(location, kategori);
 
-  useEffect(() => {
-    console.log(kategori);
-  }, [kategori]);
+  const dispatch = useDispatch();
 
   const logout = useMutation({
     mutationFn: async () => {
@@ -60,23 +56,14 @@ function Home() {
     },
   });
 
-  const postingan = posts?.data.reduce((acc: ReducedPost[], item: postsData) => {
-    const existing = acc.find((el) => el.id === item.id);
-
-    if (existing) {
-      existing.link_gambar.push(item.link_gambar);
-    } else {
-      acc.push({
-        ...item,
-        link_gambar: [item.link_gambar],
-      });
-    }
-
-    return acc;
-  }, []);
-
   const handleLogout = () => {
     logout.mutate();
+  };
+
+  const handleDetail = (id: number) => {
+    dispatch(update({ id_barang: id }));
+
+    navigate(`/detail/${id}`);
   };
 
   return (
@@ -96,8 +83,8 @@ function Home() {
 
       <section className="p-2">
         <div className="container p-2 flex justify-start gap-x-6 gap-y-3 flex-wrap">
-          {postingan?.map((item: postsData) => (
-            <div className="container bg-[#D9D9D9] w-[42vw] rounded-xl p-2 h-fit" key={item.id}>
+          {posts?.data.map((item: postsData) => (
+            <div className="container bg-[#D9D9D9] w-[42vw] rounded-xl p-2 h-fit" key={item.id} onClick={() => handleDetail(item.id)}>
               <IKImage
                 urlEndpoint={import.meta.env.VITE_IMAGEKIT_PUBLIC_URL_ENDPOINT}
                 path={item.link_gambar[0]}
@@ -120,6 +107,10 @@ function Home() {
           ))}
         </div>
       </section>
+
+      <div className="fixed left-2 top-[84vh] w-[15vw] h-[7vh] p-1 rounded-full bg-color2" onClick={() => navigate("/liked")}>
+        <img src={like} alt="" className="w-full" />
+      </div>
 
       {showModal && <LocationFilter onClose={() => setShowModal(!showModal)} />}
 

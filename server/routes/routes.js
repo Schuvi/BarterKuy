@@ -20,7 +20,9 @@ router.post('/login', barterController.login)
 router.post('/logout', authenticateJWT, barterController.logout)
 router.post('/otp', barterController.otp)
 router.post('/verify-otp', barterController.verifyOtp)
+router.post('/laporkan', barterController.laporkanPengguna)
 router.get('/posts', barterController.postinganBarang)
 router.get('/kabupaten', barterController.fetchKabupaten)
+router.get('/detail', barterController.detailBarang)
 
 module.exports = router

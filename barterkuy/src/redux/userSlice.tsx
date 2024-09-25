@@ -5,11 +5,13 @@ export const userSlice = createSlice({
     initialState: {
         email: "",
         pending: false,
+        user_id: 9,
+        nama: "Satra Shufi Aliyu",
         provinsi: "DKI Jakarta",
         kabupaten: "Jakarta Timur",
         kecamatan: "Penggilingan",
         kategori: "",
-        id_barang: "",
+        id_barang: 0,
     },
     reducers: {
         update: (state, action) => {
