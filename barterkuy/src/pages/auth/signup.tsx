@@ -52,7 +52,7 @@ function Signup() {
   const [QueryFetchKec, setQueryFetchKec] = useState<boolean>(false);
   const [showPass, setShowPass] = useState<boolean>(false);
 
-  const handleSelectionKab = (id: string ) => {
+  const handleSelectionKab = (id: string) => {
     setSelectProvinsiId(id);
     setQueryFetchKab(true);
   };
@@ -73,8 +73,6 @@ function Signup() {
     formData.append("kota", values.kota);
     formData.append("kecamatan", values.kecamatan);
 
-    console.log(formData.get("email"));
-
     const response = await axios.post(import.meta.env.VITE_API_ENDPOINT + "/register", formData, {
       headers: {
         "Content-Type": "application/json",
@@ -90,11 +88,11 @@ function Signup() {
     }
   });
 
-  const {data: prov} = fetchProv()
+  const { data: prov } = fetchProv();
 
-  const {data: kot} = fetchKot(selectProvinsiId, QueryFetchKab)
+  const { data: kot } = fetchKot(selectProvinsiId, QueryFetchKab);
 
-  const {data: kec} = fetchKec(selectKabupatenId, QueryFetchKec)
+  const { data: kec } = fetchKec(selectKabupatenId, QueryFetchKec);
 
   return (
     <>
@@ -223,7 +221,7 @@ function Signup() {
                     <Select
                       onValueChange={(value) => {
                         const kota = kot?.find((item: { id: string; text: string }) => item.text === value);
-                        console.log(kota)
+                        console.log(kota);
                         if (kota) {
                           handleSelectionKec(kota.id);
                           field.onChange(kota.text);
