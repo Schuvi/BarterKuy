@@ -11,23 +11,7 @@ import like from "../../assets/hearts_500px.png";
 import share from "../../assets/share_500px.png";
 import { Card, CardContent } from "@/components/ui/card";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, type CarouselApi } from "@/components/ui/carousel";
-
-interface detailData {
-  id: number;
-  nama_barang: string;
-  deskripsi_barang: string;
-  lokasi: string;
-  jenis_penawaran: string;
-  status_pengajuan: string;
-  status_barter: string | null;
-  kategori: string;
-  nama_lengkap: string;
-  link_gambar: string;
-  gambar_profile: string | null;
-  kota: string;
-  kecamatan: string;
-  user_id: number;
-}
+import { detailData } from "@/types/type";
 
 function DetailBarang() {
   const id = useSelector((state: RootState) => state.user.id_barang);

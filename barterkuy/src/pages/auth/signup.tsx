@@ -12,39 +12,14 @@ import { useState } from "react";
 import { IKImage } from "imagekitio-react";
 import { useDispatch } from "react-redux";
 import { update } from "@/redux/userSlice";
-
-const signFormScheme = z
-  .object({
-    email: z.string().email("Email tidak valid"),
-    nama_lengkap: z.string().min(3, "Tulis nama lengkap anda"),
-    password: z.string().min(8, "Password minimal 8 karakter"),
-    password2: z.string().min(8, "password minimal 8 karakter"),
-    nomor_telepon: z.string().min(11, "Nomor minimal 11 karakter"),
-    role: z.string(),
-    provinsi: z.string().min(1, "Pilih minimal 1 provinsi"),
-    kota: z.string().min(1, "Pilih minimal 1 kota"),
-    kecamatan: z.string().min(1, "Pilih minimal 1 kecamatan"),
-  })
-  .refine((data) => data.password === data.password2, {
-    message: "Password harus sama",
-    path: ["password2"],
-  });
-
-type SignFormScheme = z.infer<typeof signFormScheme>;
+import { signUpHandler } from "@/hooks/formHandler";
 
 function Signup() {
-  const form = useForm<SignFormScheme>({
-    resolver: zodResolver(signFormScheme),
-    defaultValues: {
-      role: "user",
-    },
-  });
-
   const dispatch = useDispatch();
 
   const navigate = useNavigate();
 
-  const { handleSubmit, control } = form;
+  const { handleSubmit, control, formSignUp } = signUpHandler();
 
   const [selectProvinsiId, setSelectProvinsiId] = useState<string>("");
   const [selectKabupatenId, setSelectKabupatenId] = useState<string>("");
@@ -118,7 +93,7 @@ function Signup() {
         </div>
 
         <div className="container">
-          <Form {...form}>
+          <Form {...formSignUp}>
             <form onSubmit={handleSignUp} className="p-2 flex flex-col justify-around">
               <div className="container flex justify-between mb-2">
                 <FormField

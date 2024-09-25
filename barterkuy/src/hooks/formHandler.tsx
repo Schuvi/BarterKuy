@@ -1,0 +1,34 @@
+import {z} from 'zod'
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+
+// SingnUp Form Handler
+const signFormScheme = z.object({
+    email: z.string().email("Email tidak valid"),
+    nama_lengkap: z.string().min(3, "Tulis nama lengkap anda"),
+    password: z.string().min(8, "Password minimal 8 karakter"),
+    password2: z.string().min(8, "password minimal 8 karakter"),
+    nomor_telepon: z.string().min(11, "Nomor minimal 11 karakter"),
+    role: z.string(),
+    provinsi: z.string().min(1, "Pilih minimal 1 provinsi"),
+    kota: z.string().min(1, "Pilih minimal 1 kota"),
+    kecamatan: z.string().min(1, "Pilih minimal 1 kecamatan"),
+}).refine((data) => data.password === data.password2, {
+    message: "Password harus sama",
+    path: ["password2"],
+})
+
+type SignFormScheme = z.infer<typeof signFormScheme>;
+
+export const signUpHandler = () => {
+    const formSignUp = useForm<SignFormScheme>({
+        resolver: zodResolver(signFormScheme),
+        defaultValues: {
+            role: "user"
+        }
+    })
+
+    const {handleSubmit, control} = formSignUp
+
+    return {handleSubmit, control, formSignUp}
+}
