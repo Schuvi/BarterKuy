@@ -2,91 +2,41 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import { fetchDetailBarang } from "@/hooks/fetchHooks";
 import { IKImage } from "imagekitio-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import blankProfile from "../../assets/blank_profile.png";
 import { Button } from "@/components/ui/button";
 import LaporPengguna from "@/components/modal/laporkanPengguna";
 import like from "../../assets/hearts_500px.png";
 import share from "../../assets/share_500px.png";
-import { Card, CardContent } from "@/components/ui/card";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, type CarouselApi } from "@/components/ui/carousel";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { detailData } from "@/types/type";
 
 function DetailBarang() {
   const id = useSelector((state: RootState) => state.user.id_barang);
   const location = useSelector((state: RootState) => state.user.kabupaten);
-  const [api, setApi] = useState<CarouselApi>();
-  // const [current, setCurrent] = useState(0)
-  // const [count, setCount] = useState(0)
 
   const { data: detail } = fetchDetailBarang(location, id);
 
   const gambar = detail?.data[0].link_gambar || [];
 
-  const [index, setIndex] = useState(0);
-  const [gambarTampil, setGambarTampil] = useState(gambar[0] || "");
   const [showLaporan, setShowLaporan] = useState<boolean>(false);
-
-  useEffect(() => {
-    if (gambar.length > 0) {
-      setGambarTampil(gambar[index]);
-    }
-  }, [index, gambar]);
-
-  const handleGambar = (i: number) => {
-    setIndex(i);
-  };
 
   return (
     <>
       <section className="flex flex-col min-h-screen">
-        <div className="container w-full h-[30vh] bg-black bg-opacity-10 backdrop-blur-xl p-2">
-          {/* {gambarTampil && (
-            <IKImage
-              urlEndpoint={import.meta.env.VITE_IMAGEKIT_PUBLIC_URL_ENDPOINT}
-              path={gambarTampil}
-              transformation={[
-                {
-                  quality: "10",
-                },
-              ]}
-              alt="Selected Image"
-              className="w-full h-full object-contain"
-            />
-          )} */}
-
-          <Carousel setApi={setApi}>
+        <div className="container flex justify-center items-center mt-3 h-[32vh]">
+          <Carousel className="w-[70vw]">
             <CarouselContent>
-              {gambar.map((gambar, index) => (
+              {gambar.map((gambar: string, index: number) => (
                 <CarouselItem key={index}>
-                  <IKImage
-                    urlEndpoint={import.meta.env.VITE_IMAGEKIT_PUBLIC_URL_ENDPOINT}
-                    path={gambar} // panggil gambar dari array
-                    transformation={[{ quality: "10" }]}
-                    alt={`Image ${index + 1}`} // Alt text sesuai gambar
-                    className="w-full h-full object-contain"
-                  />
+                  <IKImage urlEndpoint={import.meta.env.VITE_IMAGEKIT_PUBLIC_URL_ENDPOINT} path={gambar} transformation={[{ quality: "10" }]} alt={`Image ${index + 1}`} className="w-full h-full object-contain" />
                 </CarouselItem>
               ))}
             </CarouselContent>
+            <CarouselPrevious />
+            <CarouselNext />
           </Carousel>
-        </div>
-
-        <div className="container flex justify-center gap-3 mt-3">
-          {gambar.map((item: string, index: number) => (
-            <div key={index} className="w-[10vw]" onClick={() => handleGambar(index)}>
-              <IKImage
-                urlEndpoint={import.meta.env.VITE_IMAGEKIT_PUBLIC_URL_ENDPOINT}
-                path={item}
-                transformation={[
-                  {
-                    quality: "10",
-                  },
-                ]}
-              />
-            </div>
-          ))}
         </div>
 
         {detail?.data.map((item: detailData) => (
@@ -108,6 +58,7 @@ function DetailBarang() {
             </div>
 
             <h1 className="mt-3 font-bold text-md">Informasi Pemilik</h1>
+
             <div className="container flex mt-3 mb-16 p-2">
               <img src={item.gambar_profile === null ? blankProfile : item.gambar_profile} alt={item.nama_lengkap} className="w-[20vw] rounded-full" />
               <div className="container w-full flex flex-col justify-evenly ml-3">

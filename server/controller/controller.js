@@ -16,7 +16,7 @@ const barterController = {
 
             const sqlPengguna1 = 'INSERT INTO pengguna (email, nama_lengkap, password, nomor_telepon, role, verifikasi) VALUES (?, ?, ?, ?, ?, "invalid")'
 
-            const sqlPengguna2 = 'UPDATE pengguna SET lokasi = ?'
+            const sqlPengguna2 = 'UPDATE pengguna SET lokasi = ? WHERE user_id = ?'
 
             const sqlLokasi = 'INSERT INTO lokasi (user_id, provinsi, kota, kecamatan) VALUES (?, ?, ?, ?)'
 
@@ -45,9 +45,9 @@ const barterController = {
 
                 if (response) {
                     const [responseLokasi] = await connection.query(sqlLokasi, [response.insertId, provinsi, kota, kecamatan])
-    
-                    if (responseLokasi) {
-                        const [responseUpdate] =  await connection.query(sqlPengguna2, [responseLokasi.insertId])
+                    const userId = response.insertId
+                    if (responseLokasi && userId) {
+                        const [responseUpdate] =  await connection.query(sqlPengguna2, [responseLokasi.insertId, userId])
     
                         if (responseUpdate) {
                             res.status(201).json({
@@ -558,6 +558,71 @@ const barterController = {
             await connection.rollback()
             console.error(error.message)
 
+            res.status(500).json({
+                statusCode: 500,
+                state: "error",
+                message: error.message
+            })
+        } finally {
+            connection.release()
+        }
+    },
+
+    likeBarang: async (req, res) => {
+        const connection = await pool.getConnection()
+        try {
+            const {id_barang, id_user} = req.query
+            
+            await connection.beginTransaction()
+
+            const sqlLike = 'INSERT INTO like_barang (barang_id, user_id) VALUES (?, ?)'
+
+            const [response] = await connection.query(sqlLike, [id_barang, id_user])
+
+            await connection.commit()
+
+            if (response.affectedRows === 1) {
+                res.status(201).json({
+                    statusCode: 201,
+                    message: "Successfull liked"
+                })
+            }
+        } catch (error) {
+            await connection.rollback()
+            console.error(error.message)
+            res.status(500).json({
+                statusCode: 500,
+                state: "error",
+                message: error.message
+            })
+        } finally {
+            connection.release()
+        }
+    },
+
+    getLikeBarang: async (req, res) => {
+        const connection = await pool.getConnection()
+        try {
+            const {user_id} = req.query
+
+            await connection.beginTransaction()
+
+            const getLikeSql = 'SELECT like_barang.user_id, barang.nama_barang, gambar_barang.link_gambar FROM like_barang JOIN barang ON like_barang.barang_id=barang.id JOIN gambar_barang ON like_barang.barang_id=gambar_barang.barang_id WHERE like_barang.user_id = ?'
+
+            const [response] = await connection.query(getLikeSql, [user_id])
+
+            await connection.commit()
+
+            if (response) {
+                res.status(201).json({
+                    statusCode: 201,
+                    message: "Successfull get liked things",
+                    data: response
+                })
+            }
+        } catch (error) {
+            await connection.rollback()
+            console.error(error.message)
             res.status(500).json({
                 statusCode: 500,
                 state: "error",

@@ -57,3 +57,13 @@ export const fetchKecamatan = async (kotId: string) => {
 
   return response.data.result;
 };
+
+export const fetchLiked = async (user_id: number) => {
+  const response = await api.get("/get/liked", {
+    params: {
+      user_id: user_id
+    }
+  })
+
+  return response.data
+}

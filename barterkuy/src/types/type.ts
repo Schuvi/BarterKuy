@@ -14,3 +14,15 @@ export interface detailData {
   kecamatan: string;
   user_id: number;
 }
+
+export interface likeData {
+  user_id: number,
+  nama_barang: string,
+  link_gambar: string
+}
+
+export interface LoginGoogle {
+  email?: string;
+  name?: string;
+  picture?: string;
+}

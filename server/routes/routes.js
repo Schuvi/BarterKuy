@@ -24,5 +24,7 @@ router.post('/laporkan', barterController.laporkanPengguna)
 router.get('/posts', barterController.postinganBarang)
 router.get('/kabupaten', barterController.fetchKabupaten)
 router.get('/detail', barterController.detailBarang)
+router.get('/post/liked', barterController.likeBarang)
+router.get('/get/liked', barterController.getLikeBarang)
 
 module.exports = router

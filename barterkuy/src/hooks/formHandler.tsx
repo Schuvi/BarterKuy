@@ -1,4 +1,4 @@
-import {z} from 'zod'
+import {z} from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -31,4 +31,22 @@ export const signUpHandler = () => {
     const {handleSubmit, control} = formSignUp
 
     return {handleSubmit, control, formSignUp}
+}
+
+// Login Form Handler
+const loginFormSchema = z.object({
+    email: z.string().email("Email tidak valid"),
+    password: z.string().min(7, "Password minimal harus 7 karakter"),
+});
+
+type LoginFormSchema = z.infer<typeof loginFormSchema>;
+
+export const LoginHandler = () => {
+    const formLogin = useForm<LoginFormSchema>({
+        resolver: zodResolver(loginFormSchema),
+    });
+    
+    const { handleSubmit, control } = formLogin;
+    
+    return {formLogin, handleSubmit, control}
 }
