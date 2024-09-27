@@ -1,15 +1,17 @@
-import LoginImg from "./loginImg"
-import LoginWithGoogle from "./loginWithGoogle"
+import LoginHeader from "./loginHeader";
+import LoginWithGoogle from "./loginWithGoogle";
+import LoginWithEmail from "./loginWithEmail";
 
 function LoginApp() {
-    return (
-        <>
-            <section>
-                <LoginImg/>
-                <LoginWithGoogle/>
-            </section>
-        </>
-    )
+  return (
+    <>
+      <section>
+        <LoginHeader />
+        <LoginWithGoogle />
+        <LoginWithEmail />
+      </section>
+    </>
+  );
 }
 
-export default LoginApp
+export default LoginApp;
