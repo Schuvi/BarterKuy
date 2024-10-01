@@ -252,11 +252,11 @@ const barterController = {
         try {
             await connection.beginTransaction()      
 
-            const {lokasi, id} = req.query
+            const {id} = req.query
 
-            const sqlDetail = 'SELECT id, nama_barang, deskripsi_barang, barang.lokasi, jenis_penawaran, status_pengajuan, status_barter, kategori, pengguna.user_id, pengguna.nama_lengkap, pengguna.gambar_profile, lokasi.kota, lokasi.kecamatan, link_gambar from barang JOIN kategori_barang ON barang.kategori_barang=kategori_barang.kategori_id JOIN pengguna ON barang.user_id=pengguna.user_id JOIN gambar_barang ON gambar_barang.barang_id=barang.id JOIN lokasi ON pengguna.lokasi=lokasi.id_lokasi WHERE status_pengajuan = "diterima" AND barang.lokasi = ? AND id = ?'
+            const sqlDetail = 'SELECT id, nama_barang, deskripsi_barang, barang.lokasi, jenis_penawaran, status_pengajuan, status_barter, kategori, pengguna.user_id, pengguna.nama_lengkap, pengguna.gambar_profile, lokasi.kota, lokasi.kecamatan, link_gambar from barang JOIN kategori_barang ON barang.kategori_barang=kategori_barang.kategori_id JOIN pengguna ON barang.user_id=pengguna.user_id JOIN gambar_barang ON gambar_barang.barang_id=barang.id JOIN lokasi ON pengguna.lokasi=lokasi.id_lokasi WHERE status_pengajuan = "diterima" AND id = ?'
 
-            const [response] = await connection.query(sqlDetail, [lokasi, id])
+            const [response] = await connection.query(sqlDetail, [id])
 
             await connection.commit()
 
@@ -584,7 +584,7 @@ const barterController = {
             if (response.affectedRows === 1) {
                 res.status(201).json({
                     statusCode: 201,
-                    message: "Successfull liked"
+                    message: "Successfull liked things"
                 })
             }
         } catch (error) {
@@ -677,6 +677,17 @@ const barterController = {
             })
         } finally {
             connection.release()
+        }
+    },
+
+    searchBarang: async (req, res) => {
+        const connection = await pool.getConnection()
+        try {
+            await connection.beginTransaction()
+
+            
+        } catch (error) {
+            
         }
     }
 

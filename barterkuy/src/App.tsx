@@ -9,6 +9,7 @@ import OtpVerifPage from "./pages/auth/otpVerify/otpVerifPage";
 import Navbar from "./layouts/navbar/navbar";
 import DetailBarang from "./pages/detail/detailBarang";
 import LikeBarang from "./pages/like_barang/likedBarang";
+import SearchPage from "./pages/search/searchPage";
 
 function App() {
   const location = useLocation();
@@ -31,6 +32,7 @@ function App() {
             <Route path="/otpVerification2" element={<OtpVerifPage />} />
             <Route path={`/detail/${id}`} element={<DetailBarang />} />
             <Route path="/liked" element={<LikeBarang />} />
+            <Route path="/search" element={<SearchPage />} />
           </Routes>
         </div>
       </div>

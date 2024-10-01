@@ -19,10 +19,10 @@ export const fetchKabupaten = (provinsi: string) => {
   });
 };
 
-export const fetchDetailBarang = (kabupaten: string, id: number) => {
+export const fetchDetailBarang = (id: number) => {
   return useQuery({
-    queryKey: ["detail", kabupaten, id],
-    queryFn: async ({ queryKey }) => fetchDetail(queryKey[1] as string, queryKey[2] as number),
+    queryKey: ["detail", id],
+    queryFn: async ({ queryKey }) => fetchDetail(queryKey[1] as number),
     retry: 2,
     refetchInterval: false,
   });

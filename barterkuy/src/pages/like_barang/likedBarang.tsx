@@ -1,14 +1,20 @@
 import { fetchLikedThings } from "@/hooks/fetchHooks";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/redux/store";
 import { likeData } from "@/types/type";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { IKImage } from "imagekitio-react";
 import { DeleteLike } from "@/services/formPostHandler";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
+import { update } from "@/redux/userSlice";
 
 function LikeBarang() {
   const user_id = useSelector((state: RootState) => state.user.user_id);
+
+  const navigate = useNavigate()
+
+  const dispatch = useDispatch()
 
   const { data: likeThings } = fetchLikedThings(user_id);
 
@@ -18,11 +24,17 @@ function LikeBarang() {
     deleteLikeBarang.mutate({id, user_id})
   }
 
+  const handleDetail = (id: number) => {
+    dispatch(update({id_barang: id}))
+
+    navigate(`/detail/${id}`)
+  }
+
   return (
     <>
       <section className="p-3 mt-2 flex flex-col gap-y-3">
         {likeThings?.data?.map((item: likeData) => (
-          <Card className="p-2 h-fit">
+          <Card className="p-2 h-fit" key={item.id}>
             <CardContent className="h-full">
               <div className="container h-full flex justify-center items-center">
                 <div className="container w-[40vw] aspect-square mr-3 flex ">
@@ -39,9 +51,12 @@ function LikeBarang() {
                 </div>
               </div>
             </CardContent>
-            <CardFooter className="flex justify-end">
+            <CardFooter className="flex justify-between">
                 <Button className="bg-red-700" onClick={() => handleDelete(item.id, user_id)}>
                     hapus
+                </Button>
+                <Button className="bg-color1" onClick={() => handleDetail(item.id)}>
+                    Lihat Barang
                 </Button>
             </CardFooter>
           </Card>

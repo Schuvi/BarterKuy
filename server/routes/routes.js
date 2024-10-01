@@ -22,10 +22,10 @@ router.post('/otp', barterController.otp)
 router.post('/verify-otp', barterController.verifyOtp)
 router.post('/laporkan', barterController.laporkanPengguna)
 router.post('/delete/liked', barterController.deleteLikeBarang)
+router.post('/post/liked', barterController.likeBarang)
 router.get('/posts', barterController.postinganBarang)
 router.get('/kabupaten', barterController.fetchKabupaten)
 router.get('/detail', barterController.detailBarang)
-router.get('/post/liked', barterController.likeBarang)
 router.get('/get/liked', barterController.getLikeBarang)
 
 module.exports = router

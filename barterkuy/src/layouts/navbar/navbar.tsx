@@ -32,7 +32,7 @@ function Navbar() {
           <img src={chatImg} alt="chat" className="w-[10vw]" />
           <img src={giveImg} alt="give" className="w-[10vw]" />
           <img src={receiveImg} alt="receive" className="w-[10vw]" />
-          <img src={searchImg} alt="search" className="w-[10vw]" />
+          <img src={searchImg} alt="search" className="w-[10vw]" onClick={() => navigate("/search")}/>
           <img src={userImg} alt="user" className="w-[10vw]" />
         </div>
       </nav>

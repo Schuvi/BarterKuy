@@ -206,3 +206,29 @@ export const DeleteLike = (user_id: number) => {
 
   return deleteLikeBarang
 }
+
+export const likeBarang = () => {
+  const navigate = useNavigate()
+
+  return useMutation({
+    mutationFn: async ({id_barang, id_user}: {id_barang: number, id_user: number}) => {
+      const response = await api.post("/post/liked", {}, {
+        params: {
+          id_barang: id_barang,
+          id_user: id_user
+        }
+      })
+
+      return response.data
+    },
+    onSuccess: (data) => {
+      if (data.message === "Successfull liked things") {
+        alert("Berhasil menambahkan barang ke daftar")
+        navigate("/liked")
+      } 
+    },
+    onError: (error) => {
+      alert(error)
+    }
+  })
+}

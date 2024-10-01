@@ -4,16 +4,21 @@ import { fetchDetailBarang } from "@/hooks/fetchHooks";
 import DetailBarangImg from "./detailBarangImg";
 import DetailBarangDesc from "./detailBarangDesc";
 import DetailBarangFoot from "./detailBarangFoot";
+import { fetchLikedThings } from "@/hooks/fetchHooks";
 
 function DetailBarang() {
   const id = useSelector((state: RootState) => state.user.id_barang);
-  const location = useSelector((state: RootState) => state.user.kabupaten);
+  const user_id = useSelector((state: RootState) => state.user.user_id);
 
-  const { data: detail } = fetchDetailBarang(location, id);
+  const { data: detail } = fetchDetailBarang(id);
 
   const gambar = detail?.data[0].link_gambar || [];
 
   const data = detail?.data
+
+  const { data: likedThings } = fetchLikedThings(user_id)
+
+  const dataLiked = likedThings?.data
 
   return (
     <>
@@ -22,7 +27,7 @@ function DetailBarang() {
 
         <DetailBarangDesc detail={data} />
 
-        <DetailBarangFoot/>
+        <DetailBarangFoot like={dataLiked}/>
       </section>
     </>
   );

@@ -21,10 +21,9 @@ export const fetchKab = async (provinsi: string) => {
   return response.data;
 };
 
-export const fetchDetail = async (kabupaten: string, id: number) => {
+export const fetchDetail = async (id: number) => {
   const response = await api.get("/detail", {
     params: {
-      lokasi: kabupaten,
       id: id,
     },
   });
