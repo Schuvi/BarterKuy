@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import locationImg from "../assets/location_filled_500px.png";
+import locationImg from "../../assets/location_filled_500px.png";
 import { usePosts } from "@/hooks/fetchHooks";
 import { IKImage } from "imagekitio-react";
 import LocationFilter from "@/components/modal/locationFilter";
@@ -9,22 +9,10 @@ import { useState } from "react";
 import { update } from "@/redux/userSlice";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/redux/store";
-import like from "../assets/hearts_500px.png";
+import like from "../../assets/hearts_500px.png";
+import { postsData } from "@/types/type";
 
-interface postsData {
-  id: number;
-  nama_barang: string;
-  deskripsi_barang: string;
-  lokasi: string;
-  jenis_penawaran: string;
-  status_pengajuan: string;
-  status_barter: string | null;
-  kategori: string;
-  nama_lengkap: string;
-  link_gambar: string;
-}
-
-function Home() {
+function HomePage() {
   const accessToken = window.localStorage.getItem("token");
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState<boolean>(false);
@@ -109,7 +97,7 @@ function Home() {
       </section>
 
       <div className="fixed left-2 top-[84vh] w-[15vw] h-[7vh] p-1 rounded-full bg-color2" onClick={() => navigate("/liked")}>
-        <img src={like} alt="" className="w-full" />
+        <img src={like} alt="like" className="w-full" />
       </div>
 
       {showModal && <LocationFilter onClose={() => setShowModal(!showModal)} />}
@@ -121,4 +109,4 @@ function Home() {
   );
 }
 
-export default Home;
+export default HomePage;

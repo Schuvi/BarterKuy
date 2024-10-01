@@ -607,22 +607,69 @@ const barterController = {
 
             await connection.beginTransaction()
 
-            const getLikeSql = 'SELECT like_barang.user_id, barang.nama_barang, gambar_barang.link_gambar FROM like_barang JOIN barang ON like_barang.barang_id=barang.id JOIN gambar_barang ON like_barang.barang_id=gambar_barang.barang_id WHERE like_barang.user_id = ?'
+            const getLikeSql = 'SELECT barang.id, like_barang.user_id, barang.nama_barang, gambar_barang.link_gambar FROM like_barang JOIN barang ON like_barang.barang_id=barang.id JOIN gambar_barang ON like_barang.barang_id=gambar_barang.barang_id WHERE like_barang.user_id = ?'
 
             const [response] = await connection.query(getLikeSql, [user_id])
 
+            if (response.length > 0) {
+                const reducedData = response.reduce((acc, item) => {
+                    const existing = acc.find((el) => el.id === item.id)
+
+                    if (existing) {
+                        existing.link_gambar.push(item.link_gambar)
+                    } else {
+                        acc.push({
+                            ...item,
+                            link_gambar: [item.link_gambar]
+                        })
+                    }
+
+                    return acc
+                }, [])
+
+                if (reducedData) {
+                    res.status(200).json({
+                        statusCode: 200,
+                        data: reducedData
+                    })
+                }
+            }
+
             await connection.commit()
 
-            if (response) {
-                res.status(201).json({
-                    statusCode: 201,
-                    message: "Successfull get liked things",
-                    data: response
-                })
-            }
         } catch (error) {
             await connection.rollback()
             console.error(error.message)
+            res.status(500).json({
+                statusCode: 500,
+                state: "error",
+                message: error.message
+            })
+        } finally {
+            connection.release()
+        }
+    },
+
+    deleteLikeBarang: async (req, res) => {
+        const connection = await pool.getConnection()
+        try {
+            const {id_barang, user_id} = req.query
+
+            await connection.beginTransaction()
+
+            const sqlDelete = 'DELETE FROM like_barang WHERE barang_id = ? AND user_id = ?'
+
+            const [response] = await connection.query(sqlDelete, [id_barang, user_id])
+
+            if (response.affectedRows === 1) {
+                res.status(200).json({
+                    statusCode: 200,
+                    message: "Success delete liked things"
+                })
+            }
+            
+        } catch (error) {
+            await connection.rollback()
             res.status(500).json({
                 statusCode: 500,
                 state: "error",

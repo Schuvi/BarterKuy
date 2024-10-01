@@ -81,7 +81,6 @@ function OtpVerification() {
     console.log(response.data.message);
 
     if (response.data.message === "OTP verified successfully") {
-      alert("OTP verified successfully");
       MySwal.fire({
         icon: "success",
         title: "OTP Berhasil Dikonfirmasi",
@@ -134,7 +133,7 @@ function OtpVerification() {
 
   return (
     <>
-      <section className="h-[100vh] ">
+      <section className="h-[100vh]">
         <div className="container p-2 flex flex-col justify-center h-1/3 bg-color2 rounded-b-3xl">
             <h1 className="text-3xl text-white font-bold">Masukkan Kode</h1>
             <h1 className="text-3xl text-white font-bold mb-3">OTP Untuk Verifikasi</h1>
@@ -142,7 +141,6 @@ function OtpVerification() {
         </div>
 
         <div className="container h-1/2 flex flex-col items-center mt-5">
-
             <Form {...form}>
                 <form onSubmit={handleSubmitOtp}>
                     <FormField
