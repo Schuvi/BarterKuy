@@ -60,9 +60,20 @@ export const fetchKecamatan = async (kotId: string) => {
 export const fetchLiked = async (user_id: number) => {
   const response = await api.get("/get/liked", {
     params: {
-      user_id: user_id
-    }
-  })
+      user_id: user_id,
+    },
+  });
 
-  return response.data
-}
+  return response.data;
+};
+
+export const fetchSearch = async (nama_barang: string, lokasi?: string) => {
+  const response = await api.get("/search", {
+    params: {
+      lokasi: lokasi,
+      nama_barang: nama_barang,
+    },
+  });
+
+  return response.data;
+};

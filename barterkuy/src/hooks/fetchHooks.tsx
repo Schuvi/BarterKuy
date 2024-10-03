@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { fetchPosts, fetchKab, fetchDetail, fetchProvinsi, fetchKota, fetchKecamatan, fetchLiked } from "@/services/fetchApi";
+import { fetchPosts, fetchKab, fetchDetail, fetchProvinsi, fetchKota, fetchKecamatan, fetchLiked, fetchSearch } from "@/services/fetchApi";
 
 export const usePosts = (location: string, kategori?: string) => {
   return useQuery({
@@ -61,7 +61,16 @@ export const fetchLikedThings = (user_id: number) => {
   return useQuery({
     queryKey: ["liked", user_id],
     queryFn: async ({ queryKey }) => fetchLiked(queryKey[1] as number),
-    retry: 2,
+    retry: 1,
     refetchInterval: false,
+  })
+}
+
+export const fetchSearchThings = ( nama_barang: string, lokasi?: string) => {
+  return useQuery({
+    queryKey: ["search", lokasi, nama_barang],
+    queryFn: async ({queryKey}) => fetchSearch( queryKey[2] as string, queryKey[1] as string),
+    retry: 1,
+    refetchInterval: false
   })
 }

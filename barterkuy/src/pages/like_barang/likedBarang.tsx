@@ -8,6 +8,7 @@ import { DeleteLike } from "@/services/formPostHandler";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { update } from "@/redux/userSlice";
+import { Skeleton } from "@/components/ui/skeleton";
 
 function LikeBarang() {
   const user_id = useSelector((state: RootState) => state.user.user_id);
@@ -16,7 +17,7 @@ function LikeBarang() {
 
   const dispatch = useDispatch()
 
-  const { data: likeThings } = fetchLikedThings(user_id);
+  const { data: likeThings, isError, isLoading } = fetchLikedThings(user_id);
 
   const deleteLikeBarang = DeleteLike(user_id)
 
@@ -28,6 +29,33 @@ function LikeBarang() {
     dispatch(update({id_barang: id}))
 
     navigate(`/detail/${id}`)
+  }
+
+  if (isError) {
+    return(
+      <>
+        <h1 className="text-center mt-5">Tidak ada barang dalam favorit</h1>
+      </>
+    )
+  }
+
+  if (isLoading) {
+    return(
+      <>
+        <div className="container flex flex-row gap-x-1 p-5">
+          <div className="container">
+            <Skeleton className="aspect-square w-[25vw]"/>
+          </div>
+          <div className="container flex items-center">
+            <Skeleton className="w-[60vw] h-[3vh]"/>
+          </div>
+        </div>
+        <div className="container flex justify-between p-5">
+          <Skeleton className="w-[20vw] h-[4vh]"/>
+          <Skeleton className="w-[30vw] h-[4vh]"/>
+        </div>
+      </>
+    )
   }
 
   return (

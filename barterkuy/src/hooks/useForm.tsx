@@ -73,3 +73,21 @@ export const OtpHandler = (email: string) => {
 
   return { handleSubmit, control, formOtp };
 };
+
+// search filter
+const searchFilterScheme = z.object({
+  provinsi: z.string().min(1, "Pilih minimal 1 provinsi"),
+  kabupaten: z.string().min(1, "Pilih minimal 1 kota")
+});
+
+type SearchFilterScheme = z.infer<typeof searchFilterScheme>
+
+export const searchFilterHandler = () => {
+  const formSearchFilter = useForm<SearchFilterScheme>({
+    resolver: zodResolver(searchFilterScheme),
+  })
+
+  const {handleSubmit, control} = formSearchFilter
+
+  return {handleSubmit, control, formSearchFilter}
+}

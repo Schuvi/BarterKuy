@@ -1,27 +1,27 @@
-import {createSlice} from '@reduxjs/toolkit'
+import { createSlice } from "@reduxjs/toolkit";
 
 export const userSlice = createSlice({
-    name:"user",
-    initialState: {
-        email: "",
-        pending: false,
-        user_id: 9,
-        nama: "Satra Shufi Aliyu",
-        provinsi: "DKI Jakarta",
-        kabupaten: "Jakarta Timur",
-        kecamatan: "Penggilingan",
-        kategori: "",
-        id_barang: 0,
+  name: "user",
+  initialState: {
+    email: "",
+    pending: false,
+    user_id: 9,
+    nama: "Satra Shufi Aliyu",
+    provinsi: "DKI Jakarta",
+    kabupaten: "Jakarta Timur",
+    kecamatan: "Penggilingan",
+    kategori: "",
+    id_barang: 0,
+  },
+  reducers: {
+    update: (state, action) => {
+      return {
+        ...state,
+        ...action.payload,
+      };
     },
-    reducers: {
-        update: (state, action) => {
-            return {
-                ...state,
-                ...action.payload
-            }
-        }
-    }
+  },
 });
 
-export const {update} = userSlice.actions
-export default userSlice.reducer
+export const { update } = userSlice.actions;
+export default userSlice.reducer;

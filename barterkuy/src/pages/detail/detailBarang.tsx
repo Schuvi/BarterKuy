@@ -14,11 +14,11 @@ function DetailBarang() {
 
   const gambar = detail?.data[0].link_gambar || [];
 
-  const data = detail?.data
+  const data = detail?.data || []
 
   const { data: likedThings } = fetchLikedThings(user_id)
 
-  const dataLiked = likedThings?.data
+  const dataLiked = likedThings?.data || []
 
   return (
     <>

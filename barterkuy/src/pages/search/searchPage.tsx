@@ -1,11 +1,10 @@
-
+import SearchInput from "./searchInput"
 
 function SearchPage() {
     return(
         <>
             <section>
-                <h1>Search</h1>
-
+                <SearchInput/>
             </section>
         </>
     )

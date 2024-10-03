@@ -96,7 +96,7 @@ function HomePage() {
         </div>
       </section>
 
-      <div className="fixed left-2 top-[84vh] w-[15vw] h-[7vh] p-1 rounded-full bg-color2" onClick={() => navigate("/liked")}>
+      <div className="fixed left-2 bottom-4 right-0 w-[15vw] h-[7vh] p-1 rounded-full bg-color2" onClick={() => navigate("/liked")}>
         <img src={like} alt="like" className="w-full" />
       </div>
 
