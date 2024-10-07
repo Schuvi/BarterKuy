@@ -3,9 +3,9 @@ import { createSlice } from "@reduxjs/toolkit";
 export const thingsSlice = createSlice({
   name: "things",
   initialState: {
-    searchThings: "",
     provinceThings: "",
-    locationThings: "",
+    kabupatenThings: "",
+    triggerSearch: false
   },
   reducers: {
     updateThings: (state, action) => {

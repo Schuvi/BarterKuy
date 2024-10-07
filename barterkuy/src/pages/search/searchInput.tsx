@@ -1,20 +1,25 @@
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { updateThings } from "@/redux/thingsSlice";
 import { Button } from "@/components/ui/button";
 import SearchFilterModal from "@/components/modal/searchFilterModal";
+import { useSearchParams } from "react-router-dom";
+import { RootState } from "@/redux/store";
 
 function SearchInput() {
+  const [searchParams, setSearchParams] = useSearchParams()
   const [searchInput, setSearchInput] = useState<string>("");
   const [isFilter, setIsFilter] = useState<boolean>(false)
+  const location = useSelector((state: RootState) => state.things.kabupatenThings)
 
   const dispatch = useDispatch();
 
   const handleSearch = (e: any) => {
     e.preventDefault();
+    setSearchParams({ nama_barang: searchInput, lokasi: location });
 
-    dispatch(updateThings({ searchThings: searchInput }));
+    dispatch(updateThings({ triggerSearch: true }));
   };
 
   const handleClose = () => {
@@ -31,7 +36,7 @@ function SearchInput() {
         </div>
 
         <div className="container w-[20vw]">
-          <Button onClick={() => setIsFilter(true)}>Filter</Button>
+          <Button type="button" onClick={() => setIsFilter(true)} className="bg-color1">Filter</Button>
         </div>
       </div>
 

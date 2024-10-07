@@ -11,7 +11,6 @@ export const userSlice = createSlice({
     kabupaten: "Jakarta Timur",
     kecamatan: "Penggilingan",
     kategori: "",
-    id_barang: 0,
   },
   reducers: {
     update: (state, action) => {

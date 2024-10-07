@@ -21,7 +21,7 @@ export const fetchKab = async (provinsi: string) => {
   return response.data;
 };
 
-export const fetchDetail = async (id: number) => {
+export const fetchDetail = async (id: string) => {
   const response = await api.get("/detail", {
     params: {
       id: id,
@@ -70,8 +70,8 @@ export const fetchLiked = async (user_id: number) => {
 export const fetchSearch = async (nama_barang: string, lokasi?: string) => {
   const response = await api.get("/search", {
     params: {
+      nama_barang: `%${nama_barang}%`,
       lokasi: lokasi,
-      nama_barang: nama_barang,
     },
   });
 

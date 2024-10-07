@@ -19,10 +19,10 @@ export const fetchKabupaten = (provinsi: string) => {
   });
 };
 
-export const fetchDetailBarang = (id: number) => {
+export const fetchDetailBarang = (id: string) => {
   return useQuery({
     queryKey: ["detail", id],
-    queryFn: async ({ queryKey }) => fetchDetail(queryKey[1] as number),
+    queryFn: async ({ queryKey }) => fetchDetail(queryKey[1] as string),
     retry: 2,
     refetchInterval: false,
   });
@@ -66,11 +66,12 @@ export const fetchLikedThings = (user_id: number) => {
   })
 }
 
-export const fetchSearchThings = ( nama_barang: string, lokasi?: string) => {
+export const fetchSearchThings = ( nama_barang: string, trigger: boolean, lokasi?: string) => {
   return useQuery({
     queryKey: ["search", lokasi, nama_barang],
     queryFn: async ({queryKey}) => fetchSearch( queryKey[2] as string, queryKey[1] as string),
     retry: 1,
-    refetchInterval: false
+    refetchInterval: false,
+    enabled: trigger,
   })
 }

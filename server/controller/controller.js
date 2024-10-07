@@ -688,21 +688,40 @@ const barterController = {
 
       const { lokasi, nama_barang } = req.query;
 
+      console.log(req.query);
+
       const sqlSearchLoc =
-        "SELECT id, nama_barang, deskripsi_barang, barang.lokasi, jenis_penawaran, status_pengajuan, status_barter, kategori, pengguna.nama_lengkap, link_gambar from barang JOIN kategori_barang ON barang.kategori_barang=kategori_barang.kategori_id JOIN pengguna ON barang.user_id=pengguna.user_id JOIN gambar_barang ON gambar_barang.barang_id=barang.id WHERE status_pengajuan = 'diterima' AND barang.lokasi = ? AND nama_barang = ?";
+        "SELECT id, nama_barang, deskripsi_barang, barang.lokasi, jenis_penawaran, status_pengajuan, status_barter, kategori, pengguna.nama_lengkap, link_gambar from barang JOIN kategori_barang ON barang.kategori_barang=kategori_barang.kategori_id JOIN pengguna ON barang.user_id=pengguna.user_id JOIN gambar_barang ON gambar_barang.barang_id=barang.id WHERE status_pengajuan = 'diterima' AND barang.lokasi = ? AND nama_barang LIKE ?";
 
       const sqlSearch =
-        "SELECT id, nama_barang, deskripsi_barang, barang.lokasi, jenis_penawaran, status_pengajuan, status_barter, kategori, pengguna.nama_lengkap, link_gambar from barang JOIN kategori_barang ON barang.kategori_barang=kategori_barang.kategori_id JOIN pengguna ON barang.user_id=pengguna.user_id JOIN gambar_barang ON gambar_barang.barang_id=barang.id WHERE status_pengajuan = 'diterima' AND nama_barang = ?";
+        "SELECT id, nama_barang, deskripsi_barang, barang.lokasi, jenis_penawaran, status_pengajuan, status_barter, kategori, pengguna.nama_lengkap, link_gambar from barang JOIN kategori_barang ON barang.kategori_barang=kategori_barang.kategori_id JOIN pengguna ON barang.user_id=pengguna.user_id JOIN gambar_barang ON gambar_barang.barang_id=barang.id WHERE status_pengajuan = 'diterima' AND nama_barang LIKE ?";
 
-      if (nama_barang) {
+      if (lokasi === "all" && nama_barang) {
         const [response] = await connection.query(sqlSearch, [nama_barang]);
 
         if (response.length > 0) {
-          res.status(200).json({
-            statusCode: 200,
-            message: "Success retrieved things",
-            data: response,
-          });
+          const reducedData = response.reduce((acc, item) => {
+            const existing = acc.find((el) => el.id === item.id);
+  
+            if (existing) {
+              existing.link_gambar.push(item.link_gambar);
+            } else {
+              acc.push({
+                ...item,
+                link_gambar: [item.link_gambar],
+              });
+            }
+  
+            return acc;
+          }, []);
+  
+          if (reducedData) {
+            res.status(200).json({
+              statusCode: 200,
+              message: "Success retrieved things",
+              data: reducedData,
+            });
+          }
         } else if (response.length === 0) {
           res.status(404).json({
             statusCode: 404,
@@ -713,11 +732,28 @@ const barterController = {
         const [response] = await connection.query(sqlSearchLoc, [lokasi, nama_barang]);
 
         if (response.length > 0) {
-          res.status(200).json({
-            statusCode: 200,
-            message: "Success retrieved things",
-            data: response,
-          });
+          const reducedData = response.reduce((acc, item) => {
+            const existing = acc.find((el) => el.id === item.id);
+  
+            if (existing) {
+              existing.link_gambar.push(item.link_gambar);
+            } else {
+              acc.push({
+                ...item,
+                link_gambar: [item.link_gambar],
+              });
+            }
+  
+            return acc;
+          }, []);
+  
+          if (reducedData) {
+            res.status(200).json({
+              statusCode: 200,
+              message: "Success retrieved things",
+              data: reducedData,
+            });
+          }
         } else if (response.length === 0) {
           res.status(404).json({
             statusCode: 404,
@@ -732,6 +768,8 @@ const barterController = {
         message: "Internal server error :",
         error,
       });
+
+      console.log(error);
     } finally {
       connection.release();
     }

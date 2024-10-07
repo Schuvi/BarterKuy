@@ -6,11 +6,11 @@ import { usePosts } from "@/hooks/fetchHooks";
 import { IKImage } from "imagekitio-react";
 import LocationFilter from "@/components/modal/locationFilter";
 import { useState } from "react";
-import { update } from "@/redux/userSlice";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import like from "../../assets/hearts_500px.png";
 import { postsData } from "@/types/type";
+import { Card, CardContent } from "@/components/ui/card";
 
 function HomePage() {
   const accessToken = window.localStorage.getItem("token");
@@ -19,8 +19,6 @@ function HomePage() {
   const location = useSelector((state: RootState) => state.user.kabupaten);
   const kategori = useSelector((state: RootState) => state.user.kategori);
   const { data: posts } = usePosts(location, kategori);
-
-  const dispatch = useDispatch();
 
   const logout = useMutation({
     mutationFn: async () => {
@@ -49,8 +47,6 @@ function HomePage() {
   };
 
   const handleDetail = (id: number) => {
-    dispatch(update({ id_barang: id }));
-
     navigate(`/detail/${id}`);
   };
 
@@ -72,7 +68,7 @@ function HomePage() {
       <section className="p-2">
         <div className="container p-2 flex justify-start gap-x-6 gap-y-3 flex-wrap">
           {posts?.data.map((item: postsData) => (
-            <div className="container bg-[#D9D9D9] w-[42vw] rounded-xl p-2 h-fit" key={item.id} onClick={() => handleDetail(item.id)}>
+            <Card className="w-[45vw] p-3 rounded-xl h-fit" key={item.id} onClick={() => handleDetail(item.id)}>
               <IKImage
                 urlEndpoint={import.meta.env.VITE_IMAGEKIT_PUBLIC_URL_ENDPOINT}
                 path={item.link_gambar[0]}
@@ -91,7 +87,7 @@ function HomePage() {
 
                 <h2 className="text-end text-sm text-color1">{item.lokasi}</h2>
               </div>
-            </div>
+            </Card>
           ))}
         </div>
       </section>

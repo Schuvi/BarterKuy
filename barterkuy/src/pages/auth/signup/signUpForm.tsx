@@ -106,7 +106,6 @@ function SignUpForm() {
                   <Select
                     onValueChange={(value) => {
                       const provinsi = prov?.find((item: { id: string; text: string }) => item.text === value);
-                      console.log(provinsi);
                       if (provinsi) {
                         handleSelectionKab(provinsi.id);
                         field.onChange(provinsi.text);

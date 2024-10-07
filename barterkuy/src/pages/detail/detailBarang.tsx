@@ -5,12 +5,13 @@ import DetailBarangImg from "./detailBarangImg";
 import DetailBarangDesc from "./detailBarangDesc";
 import DetailBarangFoot from "./detailBarangFoot";
 import { fetchLikedThings } from "@/hooks/fetchHooks";
+import { useParams } from "react-router-dom";
 
 function DetailBarang() {
-  const id = useSelector((state: RootState) => state.user.id_barang);
+  const {id} = useParams()
   const user_id = useSelector((state: RootState) => state.user.user_id);
 
-  const { data: detail } = fetchDetailBarang(id);
+  const { data: detail } = fetchDetailBarang(id as string);
 
   const gambar = detail?.data[0].link_gambar || [];
 
