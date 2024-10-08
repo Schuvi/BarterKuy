@@ -28,5 +28,6 @@ router.get('/posts', barterController.postinganBarang)
 router.get('/kabupaten', barterController.fetchKabupaten)
 router.get('/detail', barterController.detailBarang)
 router.get('/get/liked', barterController.getLikeBarang)
+router.get('/get/auth/imagekit', barterController.reqUploadGambar)
 
 module.exports = router

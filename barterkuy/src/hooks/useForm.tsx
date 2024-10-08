@@ -91,3 +91,26 @@ export const searchFilterHandler = () => {
 
   return {handleSubmit, control, formSearchFilter}
 }
+
+
+// Form Pengajuan
+const formPengajuanScheme = z.object({
+  user: z.number().min(1, "User ID harus diisi"),
+  nama_barang: z.string().min(3, "Nama barang minimal 3 karakter").max(50, "Nama barang maksimal 50 karakter"),
+  deskripsi_barang: z.string().min(30, "Deskripsi minimal 30 karakter").max(255, "Deskripsi maksimal 255 karakter"),
+  kategori_barang: z.number().min(1, "Pilih 1 dari kategori yang tersedia"),
+  lokasi: z.string().min(3, "Lokasi minimal 3 karakter"),
+  jenis_penawaran: z.string().min(1, "Pilih salah satu dari penawaran yang tersedia"),
+})
+
+type FormPengajuanScheme = z.infer<typeof formPengajuanScheme>
+
+export const formPengajuanHandler = () => {
+  const formPengajuan = useForm<FormPengajuanScheme>({
+    resolver: zodResolver(formPengajuanScheme)
+  })
+
+  const {handleSubmit, control} = formPengajuan
+
+  return {handleSubmit, control, formPengajuan}
+}

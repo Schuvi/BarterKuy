@@ -4,6 +4,7 @@ const pool = require("../database/db");
 const otpGenerator = require("otp-generator");
 const mailSender = require("../utils/mailSender");
 const axios = require("axios");
+const imagekit = require('../utils/imageKitReq')
 
 const barterController = {
   register: async (req, res) => {
@@ -773,6 +774,12 @@ const barterController = {
     } finally {
       connection.release();
     }
+  },
+
+  reqUploadGambar: (req, res) => {
+    let result = imagekit.getAuthenticationParameters()
+
+    res.send(result)
   },
 };
 
