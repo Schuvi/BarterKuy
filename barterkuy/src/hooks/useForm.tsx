@@ -1,6 +1,8 @@
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
 
 // SingnUp Form Handler
 const signFormScheme = z
@@ -100,14 +102,20 @@ const formPengajuanScheme = z.object({
   deskripsi_barang: z.string().min(30, "Deskripsi minimal 30 karakter").max(255, "Deskripsi maksimal 255 karakter"),
   kategori_barang: z.number().min(1, "Pilih 1 dari kategori yang tersedia"),
   lokasi: z.string().min(3, "Lokasi minimal 3 karakter"),
+  locNow: z.boolean().default(false).optional(),
   jenis_penawaran: z.string().min(1, "Pilih salah satu dari penawaran yang tersedia"),
 })
 
 type FormPengajuanScheme = z.infer<typeof formPengajuanScheme>
 
 export const formPengajuanHandler = () => {
+  const user_id = useSelector((state: RootState) => state.user.user_id)
+
   const formPengajuan = useForm<FormPengajuanScheme>({
-    resolver: zodResolver(formPengajuanScheme)
+    resolver: zodResolver(formPengajuanScheme),
+    defaultValues: {
+      user: user_id,
+    }
   })
 
   const {handleSubmit, control} = formPengajuan

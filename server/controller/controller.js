@@ -4,7 +4,7 @@ const pool = require("../database/db");
 const otpGenerator = require("otp-generator");
 const mailSender = require("../utils/mailSender");
 const axios = require("axios");
-const imagekit = require('../utils/imageKitReq')
+const imagekit = require("../utils/imageKitReq");
 
 const barterController = {
   register: async (req, res) => {
@@ -703,7 +703,7 @@ const barterController = {
         if (response.length > 0) {
           const reducedData = response.reduce((acc, item) => {
             const existing = acc.find((el) => el.id === item.id);
-  
+
             if (existing) {
               existing.link_gambar.push(item.link_gambar);
             } else {
@@ -712,10 +712,10 @@ const barterController = {
                 link_gambar: [item.link_gambar],
               });
             }
-  
+
             return acc;
           }, []);
-  
+
           if (reducedData) {
             res.status(200).json({
               statusCode: 200,
@@ -735,7 +735,7 @@ const barterController = {
         if (response.length > 0) {
           const reducedData = response.reduce((acc, item) => {
             const existing = acc.find((el) => el.id === item.id);
-  
+
             if (existing) {
               existing.link_gambar.push(item.link_gambar);
             } else {
@@ -744,10 +744,10 @@ const barterController = {
                 link_gambar: [item.link_gambar],
               });
             }
-  
+
             return acc;
           }, []);
-  
+
           if (reducedData) {
             res.status(200).json({
               statusCode: 200,
@@ -777,9 +777,42 @@ const barterController = {
   },
 
   reqUploadGambar: (req, res) => {
-    let result = imagekit.getAuthenticationParameters()
+    let result = imagekit.getAuthenticationParameters();
 
-    res.send(result)
+    res.send(result);
+  },
+
+  getKategori: async (req, res) => {
+    const connection = await pool.getConnection();
+
+    try {
+      await connection.beginTransaction();
+
+      const sqlGetKategori = "SELECT * FROM kategori_barang";
+
+      const [response] = await connection.query(sqlGetKategori);
+
+      if (response.length > 0) {
+        res.status(200).json({
+          statusCode: 200,
+          message: "Success retrieved kategori",
+          data: response,
+        });
+      } else {
+        res.status(404).json({
+          statusCode: 404,
+          message: "Not found",
+        });
+      }
+    } catch (error) {
+      await connection.rollback();
+      res.status(500).json({
+        statusCode: 500,
+        message: "Internal server error :",
+      });
+    } finally {
+      connection.release();
+    }
   },
 };
 

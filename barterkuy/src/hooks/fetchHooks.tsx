@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { fetchPosts, fetchKab, fetchDetail, fetchProvinsi, fetchKota, fetchKecamatan, fetchLiked, fetchSearch } from "@/services/fetchApi";
+import { fetchPosts, fetchKab, fetchDetail, fetchProvinsi, fetchKota, fetchKecamatan, fetchLiked, fetchSearch, fetchKategori } from "@/services/fetchApi";
 
 export const usePosts = (location: string, kategori?: string) => {
   return useQuery({
@@ -63,15 +63,24 @@ export const fetchLikedThings = (user_id: number) => {
     queryFn: async ({ queryKey }) => fetchLiked(queryKey[1] as number),
     retry: 1,
     refetchInterval: false,
-  })
-}
+  });
+};
 
-export const fetchSearchThings = ( nama_barang: string, trigger: boolean, lokasi?: string) => {
+export const fetchSearchThings = (nama_barang: string, trigger: boolean, lokasi?: string) => {
   return useQuery({
     queryKey: ["search", lokasi, nama_barang],
-    queryFn: async ({queryKey}) => fetchSearch( queryKey[2] as string, queryKey[1] as string),
+    queryFn: async ({ queryKey }) => fetchSearch(queryKey[2] as string, queryKey[1] as string),
     retry: 1,
     refetchInterval: false,
     enabled: trigger,
-  })
-}
+  });
+};
+
+export const fetchAllKategori = () => {
+  return useQuery({
+    queryKey: ["kategori"],
+    queryFn: fetchKategori,
+    retry: 1,
+    refetchInterval: false,
+  });
+};

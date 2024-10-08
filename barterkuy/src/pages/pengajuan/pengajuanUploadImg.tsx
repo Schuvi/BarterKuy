@@ -8,18 +8,16 @@ function GiveThingsUpImg() {
     const [fileName, setFileName] = useState<string>("Upload");
 
     const onError = (err: any) => {
-        console.log("Error", err);
+        alert(`error uploading ${err}`)
     };
       
     const onSuccess = (res: any) => {
-        console.log("Success", res);
-
+        alert("Success")
         setUploadProgress(0);
     };
 
     const onUploadProgress = (progress: any) => {
         const percentageProgress = Math.round((progress.loaded / progress.total) * 100);
-        console.log("Progress", percentageProgress);
 
         setUploadProgress(percentageProgress);
     };
@@ -41,7 +39,6 @@ function GiveThingsUpImg() {
                     urlEndpoint={import.meta.env.VITE_IMAGEKIT_PUBLIC_URL_ENDPOINT} 
                     authenticator={imageKitAuthenticator}
                 >
-                    <p>Upload an image</p>
                 <IKUpload
                     fileName="barang"
                     onError={onError}

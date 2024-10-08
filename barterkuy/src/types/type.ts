@@ -16,10 +16,10 @@ export interface detailData {
 }
 
 export interface likeData {
-  id: number,
-  user_id: number,
-  nama_barang: string,
-  link_gambar: string
+  id: number;
+  user_id: number;
+  nama_barang: string;
+  link_gambar: string;
 }
 
 export interface LoginGoogle {
@@ -42,5 +42,10 @@ export interface postsData {
 }
 
 export interface detailGambar {
-  gambar: string[]
+  gambar: string[];
+}
+
+export interface dataKategori {
+  kategori_id: number;
+  kategori: string;
 }
