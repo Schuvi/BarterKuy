@@ -253,7 +253,7 @@ export const handlePostPengajuan = () => {
     formData.append("kategori_barang", String(value.kategori_barang));
     formData.append("lokasi", value.lokasi);
     formData.append("jenis_penawaran", value.jenis_penawaran);
-    formData.append("link_gambar", value.fileImg);
+    formData.append("link_gambar", JSON.stringify(value.fileImg));
 
     const response = await api.post("/post/barang", formData, {
       headers: {

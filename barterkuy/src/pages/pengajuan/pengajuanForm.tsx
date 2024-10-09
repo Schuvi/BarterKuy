@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectTrigger, SelectItem, SelectContent } from "@/components/ui/select";
 import { dataKategori } from "@/types/type";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { update } from "@/redux/userSlice";
 import { RootState } from "@/redux/store";
@@ -23,6 +23,11 @@ function GiveThingsForm({ kategori, loadingData, errorData }: { kategori: dataKa
   const isDisabled = useSelector((state: RootState) => state.user.disabledLoc);
 
   const location = useSelector((state: RootState) => state.user.kabupaten);
+  const file = useSelector((state: RootState) => state.user.fileUpload);
+
+  useEffect(() => {
+    console.log(file)
+  }, [file])
 
   return (
     <>
@@ -50,7 +55,7 @@ function GiveThingsForm({ kategori, loadingData, errorData }: { kategori: dataKa
               return (
                 <FormItem>
                   <FormControl>
-                    <Input {...field} type="text" placeholder="file path" />
+                    <Input {...field} type="text" placeholder="file path" value={JSON.stringify(field.value)}/>
                   </FormControl>
                   <FormMessage />
                 </FormItem>

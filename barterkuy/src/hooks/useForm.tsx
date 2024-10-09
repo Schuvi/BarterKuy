@@ -105,7 +105,7 @@ const formPengajuanScheme = z.object({
   lokasi: z.string().min(3, "Lokasi minimal 3 karakter"),
   locNow: z.boolean().default(false).optional(),
   jenis_penawaran: z.string().min(1, "Pilih salah satu dari penawaran yang tersedia"),
-  fileImg: z.string().min(1, "Silahkan upload file"),
+  fileImg: z.array(z.object({fileName: z.string(), filePath: z.string()}))
 })
 
 type FormPengajuanScheme = z.infer<typeof formPengajuanScheme>
@@ -119,7 +119,7 @@ export const formPengajuanHandler = () => {
     resolver: zodResolver(formPengajuanScheme),
     defaultValues: {
       user: user_id,
-      fileImg: ""
+      fileImg: []
     }
   })
 
