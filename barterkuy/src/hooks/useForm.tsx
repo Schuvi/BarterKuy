@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
+import { useEffect, useState } from "react";
 
 // SingnUp Form Handler
 const signFormScheme = z
@@ -104,6 +105,7 @@ const formPengajuanScheme = z.object({
   lokasi: z.string().min(3, "Lokasi minimal 3 karakter"),
   locNow: z.boolean().default(false).optional(),
   jenis_penawaran: z.string().min(1, "Pilih salah satu dari penawaran yang tersedia"),
+  fileImg: z.string().min(1, "Silahkan upload file"),
 })
 
 type FormPengajuanScheme = z.infer<typeof formPengajuanScheme>
@@ -111,14 +113,23 @@ type FormPengajuanScheme = z.infer<typeof formPengajuanScheme>
 export const formPengajuanHandler = () => {
   const user_id = useSelector((state: RootState) => state.user.user_id)
 
+  const fileImg = useSelector((state: RootState) => state.user.fileUpload);
+  
   const formPengajuan = useForm<FormPengajuanScheme>({
     resolver: zodResolver(formPengajuanScheme),
     defaultValues: {
       user: user_id,
+      fileImg: ""
     }
   })
 
-  const {handleSubmit, control} = formPengajuan
+  const {handleSubmit, control, setValue} = formPengajuan
+
+  useEffect(() => {
+    if (fileImg) {
+      setValue("fileImg", fileImg);
+    }
+  }, [fileImg])
 
   return {handleSubmit, control, formPengajuan}
 }

@@ -1,8 +1,9 @@
 import { api } from "./axiosConfig";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
 import { update } from "@/redux/userSlice";
-import { signUpHandler, LoginHandler } from "@/hooks/useForm";
+import { signUpHandler, LoginHandler, formPengajuanHandler } from "@/hooks/useForm";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import { useMutation } from "@tanstack/react-query";
@@ -48,58 +49,58 @@ export const signPostHandler = () => {
 
 // Login Post Handler
 export const loginPostHandler = () => {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
-    const MySwal = withReactContent(Swal);
-  
-    const { handleSubmit, formLogin, control } = LoginHandler();
-  
-    const handleLogin = handleSubmit(async (values) => {
-      const formData: FormData = new FormData();
-      formData.append("email", values.email);
-      formData.append("password", values.password);
-  
-      try {
-        const response = await api.post("/login", formData);
-  
-        if (response.data.message === "Login success!") {
-          MySwal.fire({
-            title: "Sign In sukses",
-            icon: "success",
-            confirmButtonText: "Konfirmasi",
-          }).then((result) => {
-            if (result.isConfirmed) {
-              window.localStorage.setItem("token", response.data.accessToken);
-              navigate("/");
-            }
-          });
-        }
-      } catch (error) {
+  const MySwal = withReactContent(Swal);
+
+  const { handleSubmit, formLogin, control } = LoginHandler();
+
+  const handleLogin = handleSubmit(async (values) => {
+    const formData: FormData = new FormData();
+    formData.append("email", values.email);
+    formData.append("password", values.password);
+
+    try {
+      const response = await api.post("/login", formData);
+
+      if (response.data.message === "Login success!") {
         MySwal.fire({
-          title: "Error",
-          text: "Login failed. Please try again.",
-          icon: "error",
-          confirmButtonText: "OK",
+          title: "Sign In sukses",
+          icon: "success",
+          confirmButtonText: "Konfirmasi",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            window.localStorage.setItem("token", response.data.accessToken);
+            navigate("/");
+          }
         });
       }
-    });
+    } catch (error) {
+      MySwal.fire({
+        title: "Error",
+        text: "Login failed. Please try again.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+    }
+  });
 
-    return {formLogin, control, handleLogin}
-}
+  return { formLogin, control, handleLogin };
+};
 
 // OTP Request
 export const OtpReqHandler = (email: string) => {
-  const MySwal = withReactContent(Swal)
+  const MySwal = withReactContent(Swal);
 
   const dispatch = useDispatch();
 
   const Toast = MySwal.mixin({
     toast: true,
-    position: 'top-end',
+    position: "top-end",
     showConfirmButton: false,
     timer: 3000,
-    timerProgressBar: true
-  })
+    timerProgressBar: true,
+  });
 
   const sendOtp = useMutation({
     mutationFn: async (formData: FormData) => {
@@ -112,25 +113,25 @@ export const OtpReqHandler = (email: string) => {
       return response.data;
     },
     onSuccess: (data) => {
-        console.log(data);
+      console.log(data);
       if (data.message === "OTP verified successfully") {
         Toast.fire({
           icon: "success",
-          title: "OTP berhasil dikirim"
-        })
+          title: "OTP berhasil dikirim",
+        });
       }
     },
     onError: (error) => {
       console.error(error);
       Toast.fire({
         icon: "error",
-        title: "Gagal Mengirim OTP"
-      })
+        title: "Gagal Mengirim OTP",
+      });
     },
   });
 
   const handleOtp = (e: any) => {
-    e.preventDefault()
+    e.preventDefault();
 
     const formData: FormData = new FormData();
     formData.append("email", email);
@@ -140,15 +141,15 @@ export const OtpReqHandler = (email: string) => {
     sendOtp.mutate(formData);
   };
 
-  return {handleOtp}
-}
+  return { handleOtp };
+};
 
 export const OtpPostVerify = (email: string) => {
-  const { handleSubmit, formOtp, control } = OtpHandler(email)
+  const { handleSubmit, formOtp, control } = OtpHandler(email);
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
-  const MySwal = withReactContent(Swal)
+  const MySwal = withReactContent(Swal);
 
   const handleSubmitOtp = handleSubmit(async (values) => {
     const formData: FormData = new FormData();
@@ -169,66 +170,101 @@ export const OtpPostVerify = (email: string) => {
         title: "OTP Berhasil Dikonfirmasi",
       }).then((result) => {
         if (result.isConfirmed) {
-            navigate('/')
+          navigate("/");
         }
       });
     }
   });
 
-  return {handleSubmitOtp, formOtp, control}
-}
+  return { handleSubmitOtp, formOtp, control };
+};
 
 // Hapus like barang
 export const DeleteLike = (user_id: number) => {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
 
   const deleteLikeBarang = useMutation({
-    mutationFn: async ({id, user_id}: {id: number, user_id: number}) => {
-      const response = await api.post('/delete/liked', {}, {
-        params: {
-          id_barang: id,
-          user_id: user_id
+    mutationFn: async ({ id, user_id }: { id: number; user_id: number }) => {
+      const response = await api.post(
+        "/delete/liked",
+        {},
+        {
+          params: {
+            id_barang: id,
+            user_id: user_id,
+          },
         }
-      })
+      );
 
-      return response.data
+      return response.data;
     },
     onSuccess: (data) => {
       if (data.message === "Success delete liked things") {
-        alert("Berhasil menghapus barang dari daftar")
-        queryClient.invalidateQueries({queryKey: ["liked", user_id]})
+        alert("Berhasil menghapus barang dari daftar");
+        queryClient.invalidateQueries({ queryKey: ["liked", user_id] });
       }
     },
     onError: (error) => {
-      alert(error)
-    }
-  })
+      alert(error);
+    },
+  });
 
-  return deleteLikeBarang
-}
+  return deleteLikeBarang;
+};
 
 export const likeBarang = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   return useMutation({
-    mutationFn: async ({id_barang, id_user}: {id_barang: number, id_user: number}) => {
-      const response = await api.post("/post/liked", {}, {
-        params: {
-          id_barang: id_barang,
-          id_user: id_user
+    mutationFn: async ({ id_barang, id_user }: { id_barang: number; id_user: number }) => {
+      const response = await api.post(
+        "/post/liked",
+        {},
+        {
+          params: {
+            id_barang: id_barang,
+            id_user: id_user,
+          },
         }
-      })
+      );
 
-      return response.data
+      return response.data;
     },
     onSuccess: (data) => {
       if (data.message === "Successfull liked things") {
-        alert("Berhasil menambahkan barang ke daftar")
-        navigate("/liked")
-      } 
+        alert("Berhasil menambahkan barang ke daftar");
+        navigate("/liked");
+      }
     },
     onError: (error) => {
-      alert(error)
+      alert(error);
+    },
+  });
+};
+
+export const handlePostPengajuan = () => {
+  const { handleSubmit, control, formPengajuan } = formPengajuanHandler();
+
+  const handlePostForm = handleSubmit(async (value) => {
+    const formData: FormData = new FormData();
+    formData.append("user_id", String(value.user));
+    formData.append("nama_barang", value.nama_barang);
+    formData.append("deskripsi_barang", value.deskripsi_barang);
+    formData.append("kategori_barang", String(value.kategori_barang));
+    formData.append("lokasi", value.lokasi);
+    formData.append("jenis_penawaran", value.jenis_penawaran);
+    formData.append("link_gambar", value.fileImg);
+
+    const response = await api.post("/post/barang", formData, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (response) {
+      console.log(response);
     }
-  })
-}
+  });
+
+  return { control, handlePostForm, formPengajuan };
+};

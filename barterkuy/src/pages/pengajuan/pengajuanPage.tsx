@@ -1,4 +1,3 @@
-import GiveThingsUpImg from "./pengajuanUploadImg";
 import GiveThingsForm from "./pengajuanForm";
 import { fetchAllKategori } from "@/hooks/fetchHooks";
 
@@ -9,7 +8,6 @@ function GiveThings() {
     <>
       <h1>Pengajuan Barang</h1>
       <GiveThingsForm kategori={kategori?.data} loadingData={loadingKategori} errorData={errorKategori}/>
-      <GiveThingsUpImg />
     </>
   );
 }

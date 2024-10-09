@@ -10,7 +10,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import like from "../../assets/hearts_500px.png";
 import { postsData } from "@/types/type";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 
 function HomePage() {
   const accessToken = window.localStorage.getItem("token");
@@ -68,24 +68,28 @@ function HomePage() {
       <section className="p-2">
         <div className="container p-2 flex justify-start gap-x-6 gap-y-3 flex-wrap">
           {posts?.data.map((item: postsData) => (
-            <Card className="w-[45vw] p-3 rounded-xl h-fit" key={item.id} onClick={() => handleDetail(item.id)}>
-              <IKImage
-                urlEndpoint={import.meta.env.VITE_IMAGEKIT_PUBLIC_URL_ENDPOINT}
-                path={item.link_gambar[0]}
-                transformation={[
-                  {
-                    quality: "10",
-                  },
-                ]}
-                className="rounded-lg"
-              />
+            <Card className="w-[42vw] p-3 rounded-xl h-[38vh]" key={item.id} onClick={() => handleDetail(item.id)}>
+              <div className="container w-full h-[18vh]">
+                <IKImage
+                  urlEndpoint={import.meta.env.VITE_IMAGEKIT_PUBLIC_URL_ENDPOINT}
+                  path={item.link_gambar[0]}
+                  transformation={[
+                    {
+                      quality: "10",
+                    },
+                  ]}
+                  className="rounded-lg w-full h-full object-cover"
+                />
+              </div>
 
-              <div className="container mt-2">
-                <h1 className="font-bold text-md mb-2">{item.nama_barang.length >= 15 ? `${item.nama_barang.slice(0, 15)}...` : item.nama_barang}</h1>
+              <div className="container flex flex-col justify-end h-[16vh] mt-2">
+                <div className="container flex flex-col h-full justify-start">
+                  <h1 className="font-bold text-md mb-2">{item.nama_barang.length >= 15 ? `${item.nama_barang.slice(0, 15)}...` : item.nama_barang}</h1>
 
-                <p className="mb-2 text-sm">{item.deskripsi_barang.length >= 50 ? `${item.deskripsi_barang.slice(0, 50)}...` : item.deskripsi_barang}</p>
+                  <p className="mb-2 text-sm overflow-hidden">{item.deskripsi_barang.length >= 50 ? `${item.deskripsi_barang.slice(0, 50)}...` : item.deskripsi_barang}</p>
+                </div>
 
-                <h2 className="text-end text-sm text-color1">{item.lokasi}</h2>
+                <h2 className="text-end text-sm text-color1 ">{item.lokasi}</h2>
               </div>
             </Card>
           ))}

@@ -310,20 +310,28 @@ const barterController = {
     try {
       await connection.beginTransaction();
 
-      const { user_id, nama_barang, deskripsi_barang, kategori_barang, lokasi, jenis_penawaran, status_pengajuan } = req.body;
+      const { user_id, nama_barang, deskripsi_barang, kategori_barang, lokasi, jenis_penawaran, link_gambar } = req.body;
 
-      const sql = 'INSERT INTO barang (user_id, nama_barang, deskripsi_barang, kategori_barang, lokasi, jenis_penawaran, status_pengajuan, status_barter) VALUES (?, ?, ?, ?, ?, ?, "diajukan")';
+      const sql = 'INSERT INTO barang (user_id, nama_barang, deskripsi_barang, kategori_barang, lokasi, jenis_penawaran, status_pengajuan, status_barter) VALUES (?, ?, ?, ?, ?, ?, "diajukan", null)';
 
-      const [response] = connection.query(sql, [user_id, nama_barang, deskripsi_barang, kategori_barang, lokasi, jenis_penawaran, status_pengajuan]);
+      const sqlGambar = "INSERT INTO gambar_barang (barang_id, link_gambar) VALUES (?, ?)";
+
+      const [response] = await connection.query(sql, [user_id, nama_barang, deskripsi_barang, kategori_barang, lokasi, jenis_penawaran]);
+
+      if (response) {
+        const userId = response.insertId;
+
+        const [response_gambar] = await connection.query(sqlGambar, [userId, link_gambar]);
+
+        if (response_gambar.affectedRows > 0) {
+          res.status(201).json({
+            statusCode: 201,
+            message: "Successfully submitted the goods",
+          });
+        }
+      }
 
       await connection.commit();
-
-      if (response.affectedRows === 1) {
-        res.status(201).json({
-          statusCode: 201,
-          message: "Successfully submitted the goods",
-        });
-      }
     } catch (error) {
       console.error(error);
       res.status(500).json({

@@ -1,4 +1,4 @@
-import { formPengajuanHandler } from "@/hooks/useForm";
+import { handlePostPengajuan } from "@/services/formPostHandler";
 import { Form, FormField, FormMessage, FormControl, FormItem, FormLabel } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -10,9 +10,10 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { update } from "@/redux/userSlice";
 import { RootState } from "@/redux/store";
+import GiveThingsUpImg from "./pengajuanUploadImg";
 
 function GiveThingsForm({ kategori, loadingData, errorData }: { kategori: dataKategori[]; loadingData: boolean; errorData: boolean }) {
-  const { handleSubmit, control, formPengajuan } = formPengajuanHandler();
+  const { control, handlePostForm, formPengajuan } = handlePostPengajuan();
 
   const [selection, setSelection] = useState<string>("");
   const [selectionPenawaran, setSelectionPenawaran] = useState<string>("");
@@ -22,10 +23,6 @@ function GiveThingsForm({ kategori, loadingData, errorData }: { kategori: dataKa
   const isDisabled = useSelector((state: RootState) => state.user.disabledLoc);
 
   const location = useSelector((state: RootState) => state.user.kabupaten);
-
-  const handlePostForm = handleSubmit((value) => {
-    console.log(value);
-  });
 
   return (
     <>
@@ -38,7 +35,22 @@ function GiveThingsForm({ kategori, loadingData, errorData }: { kategori: dataKa
               return (
                 <FormItem>
                   <FormControl>
-                    <Input {...field} type="text" placeholder="user id" className="hidden" />
+                    <Input {...field} type="text" placeholder="user id" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              );
+            }}
+          />
+
+          <FormField
+            control={control}
+            name="fileImg"
+            render={({ field }) => {
+              return (
+                <FormItem>
+                  <FormControl>
+                    <Input {...field} type="text" placeholder="file path" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -162,10 +174,13 @@ function GiveThingsForm({ kategori, loadingData, errorData }: { kategori: dataKa
               return (
                 <FormItem>
                   <FormLabel>Jenis Penawaran Barang</FormLabel>
-                  <Select onValueChange={(value) => {
-                    setSelectionPenawaran(value)
-                    field.onChange(value)
-                  }} value={selection}>
+                  <Select
+                    onValueChange={(value) => {
+                      setSelectionPenawaran(value);
+                      field.onChange(value);
+                    }}
+                    value={selection}
+                  >
                     <SelectTrigger>{selectionPenawaran ? selectionPenawaran : "Pilih Jenis Penawaran"}</SelectTrigger>
 
                     <SelectContent>
@@ -178,6 +193,14 @@ function GiveThingsForm({ kategori, loadingData, errorData }: { kategori: dataKa
               );
             }}
           />
+
+          <GiveThingsUpImg />
+
+          <div className="container text-center">
+            <Button type="submit" className="mt-5 bg-color2">
+              Ajukan Barang
+            </Button>
+          </div>
         </form>
       </Form>
     </>

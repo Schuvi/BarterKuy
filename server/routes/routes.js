@@ -23,6 +23,7 @@ router.post("/verify-otp", barterController.verifyOtp);
 router.post("/laporkan", barterController.laporkanPengguna);
 router.post("/delete/liked", barterController.deleteLikeBarang);
 router.post("/post/liked", barterController.likeBarang);
+router.post("/post/barang", barterController.pengajuanBarang);
 router.get("/search", barterController.searchBarang);
 router.get("/posts", barterController.postinganBarang);
 router.get("/kabupaten", barterController.fetchKabupaten);
