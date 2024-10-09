@@ -4,6 +4,7 @@ const pool = require("../database/db");
 const otpGenerator = require("otp-generator");
 const mailSender = require("../utils/mailSender");
 const axios = require("axios");
+const imagekit = require("../utils/imageKitReq");
 
 const barterController = {
   register: async (req, res) => {
@@ -21,8 +22,6 @@ const barterController = {
       const sqlLokasi = "INSERT INTO lokasi (user_id, provinsi, kota, kecamatan) VALUES (?, ?, ?, ?)";
 
       const sqlPengguna3 = "SELECT email, nama_lengkap FROM pengguna WHERE email = ? OR nama_lengkap = ?";
-
-      console.log(email);
 
       const [responseSql3] = await connection.query(sqlPengguna3, [email, nama_lengkap]);
 
@@ -163,8 +162,6 @@ const barterController = {
       await connection.beginTransaction();
 
       const { lokasi, kategori } = req.query;
-
-      console.log(req.query);
 
       const sql =
         'SELECT id, nama_barang, deskripsi_barang, barang.lokasi, jenis_penawaran, status_pengajuan, status_barter, kategori, pengguna.nama_lengkap, link_gambar from barang JOIN kategori_barang ON barang.kategori_barang=kategori_barang.kategori_id JOIN pengguna ON barang.user_id=pengguna.user_id JOIN gambar_barang ON gambar_barang.barang_id=barang.id WHERE status_pengajuan = "diterima" AND barang.lokasi = ?';
@@ -309,20 +306,29 @@ const barterController = {
     try {
       await connection.beginTransaction();
 
-      const { user_id, nama_barang, deskripsi_barang, kategori_barang, lokasi, jenis_penawaran, status_pengajuan } = req.body;
+      const { user_id, nama_barang, deskripsi_barang, kategori_barang, lokasi, jenis_penawaran, link_gambar } = req.body;
 
-      const sql = 'INSERT INTO barang (user_id, nama_barang, deskripsi_barang, kategori_barang, lokasi, jenis_penawaran, status_pengajuan, status_barter) VALUES (?, ?, ?, ?, ?, ?, "diajukan")';
+      const sql = 'INSERT INTO barang (user_id, nama_barang, deskripsi_barang, kategori_barang, lokasi, jenis_penawaran, status_pengajuan, status_barter) VALUES (?, ?, ?, ?, ?, ?, "diajukan", null)';
 
-      const [response] = connection.query(sql, [user_id, nama_barang, deskripsi_barang, kategori_barang, lokasi, jenis_penawaran, status_pengajuan]);
+      const [response] = await connection.query(sql, [user_id, nama_barang, deskripsi_barang, kategori_barang, lokasi, jenis_penawaran]);
 
-      await connection.commit();
+      if (response) {
+        const barangId = response.insertId;
 
-      if (response.affectedRows === 1) {
+        const linkGambarArray = JSON.parse(link_gambar);
+
+        const sqlGambar = "INSERT INTO gambar_barang (barang_id, link_gambar, fileId) VALUES (?, ?, ?)";
+        for (const gambar of linkGambarArray) {
+          await connection.query(sqlGambar, [barangId, gambar.filePath, gambar.fileId]);
+        }
+
         res.status(201).json({
           statusCode: 201,
           message: "Successfully submitted the goods",
         });
       }
+
+      await connection.commit();
     } catch (error) {
       console.error(error);
       res.status(500).json({
@@ -423,8 +429,6 @@ const barterController = {
       const sql = "INSERT INTO otp (email, otp) VALUES (?, ?)";
 
       const [response] = await connection.query(sql, [email, otp]);
-
-      console.log(response);
 
       if (response.affectedRows === 1) {
         mailSender(
@@ -535,8 +539,6 @@ const barterController = {
 
       const { reporter_id, target_id, alasan, isi_laporan } = req.body;
 
-      console.log(req.body);
-
       const sqlLaporkan = "INSERT INTO laporan (reporter_id, target_id, alasan, isi_laporan) VALUES (?, ?, ?, ?)";
 
       const [response] = await connection.query(sqlLaporkan, [reporter_id, target_id, alasan, isi_laporan]);
@@ -548,8 +550,6 @@ const barterController = {
           statusCode: 200,
           message: "Laporan berhasil disimpan",
         });
-
-        console.log("affectedRows", response.affectedRows);
       }
     } catch (error) {
       await connection.rollback();
@@ -688,8 +688,6 @@ const barterController = {
 
       const { lokasi, nama_barang } = req.query;
 
-      console.log(req.query);
-
       const sqlSearchLoc =
         "SELECT id, nama_barang, deskripsi_barang, barang.lokasi, jenis_penawaran, status_pengajuan, status_barter, kategori, pengguna.nama_lengkap, link_gambar from barang JOIN kategori_barang ON barang.kategori_barang=kategori_barang.kategori_id JOIN pengguna ON barang.user_id=pengguna.user_id JOIN gambar_barang ON gambar_barang.barang_id=barang.id WHERE status_pengajuan = 'diterima' AND barang.lokasi = ? AND nama_barang LIKE ?";
 
@@ -702,7 +700,7 @@ const barterController = {
         if (response.length > 0) {
           const reducedData = response.reduce((acc, item) => {
             const existing = acc.find((el) => el.id === item.id);
-  
+
             if (existing) {
               existing.link_gambar.push(item.link_gambar);
             } else {
@@ -711,10 +709,10 @@ const barterController = {
                 link_gambar: [item.link_gambar],
               });
             }
-  
+
             return acc;
           }, []);
-  
+
           if (reducedData) {
             res.status(200).json({
               statusCode: 200,
@@ -734,7 +732,7 @@ const barterController = {
         if (response.length > 0) {
           const reducedData = response.reduce((acc, item) => {
             const existing = acc.find((el) => el.id === item.id);
-  
+
             if (existing) {
               existing.link_gambar.push(item.link_gambar);
             } else {
@@ -743,10 +741,10 @@ const barterController = {
                 link_gambar: [item.link_gambar],
               });
             }
-  
+
             return acc;
           }, []);
-  
+
           if (reducedData) {
             res.status(200).json({
               statusCode: 200,
@@ -763,13 +761,51 @@ const barterController = {
       }
     } catch (error) {
       await connection.rollback();
+      console.error(error)
       res.status(500).json({
         statusCode: 500,
         message: "Internal server error :",
         error,
       });
+    } finally {
+      connection.release();
+    }
+  },
 
-      console.log(error);
+  reqUploadGambar: (req, res) => {
+    let result = imagekit.getAuthenticationParameters();
+
+    res.send(result);
+  },
+
+  getKategori: async (req, res) => {
+    const connection = await pool.getConnection();
+
+    try {
+      await connection.beginTransaction();
+
+      const sqlGetKategori = "SELECT * FROM kategori_barang";
+
+      const [response] = await connection.query(sqlGetKategori);
+
+      if (response.length > 0) {
+        res.status(200).json({
+          statusCode: 200,
+          message: "Success retrieved kategori",
+          data: response,
+        });
+      } else {
+        res.status(404).json({
+          statusCode: 404,
+          message: "Not found",
+        });
+      }
+    } catch (error) {
+      await connection.rollback();
+      res.status(500).json({
+        statusCode: 500,
+        message: "Internal server error :",
+      });
     } finally {
       connection.release();
     }

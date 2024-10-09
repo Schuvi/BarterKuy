@@ -77,3 +77,9 @@ export const fetchSearch = async (nama_barang: string, lokasi?: string) => {
 
   return response.data;
 };
+
+export const fetchKategori = async () => {
+  const response = await api.get("/get/kategori");
+
+  return response.data;
+};

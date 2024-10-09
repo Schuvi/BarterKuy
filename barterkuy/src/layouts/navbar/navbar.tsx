@@ -32,8 +32,8 @@ function Navbar() {
         <div className="container flex flex-row justify-around h-full">
           <img src={homeImg} alt="home" className="w-[10vw]" onClick={() => navigate("/")} />
           <img src={chatImg} alt="chat" className="w-[10vw]" />
-          <img src={giveImg} alt="give" className="w-[10vw]" />
           <img src={receiveImg} alt="receive" className="w-[10vw]" />
+          <img src={giveImg} alt="give" className="w-[10vw]" onClick={() => navigate("/give")}/>
           <img src={searchImg} alt="search" className="w-[10vw]" onClick={() => navigate("/search")}/>
           <img src={userImg} alt="user" className="w-[10vw]" />
         </div>

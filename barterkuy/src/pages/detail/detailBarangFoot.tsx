@@ -7,14 +7,22 @@ import { RootState } from "@/redux/store";
 import { likeBarang } from "@/services/formPostHandler";
 import { useEffect, useState } from "react";
 import { likeData } from "@/types/type";
+import withReactContent from "sweetalert2-react-content";
+import Swal from "sweetalert2";
+import { useParams } from "react-router-dom";
 
 function DetailBarangFoot({ like }: { like: likeData[] }) {
-  const id_barang = useSelector((state: RootState) => state.user.id_barang);
+  const {id} = useParams()
+
   const id_user = useSelector((state: RootState) => state.user.user_id);
 
   const [isLikedButton, setIsLikedButton] = useState<boolean>(false);
 
+  const MySwal = withReactContent(Swal);
+
   const mutation = likeBarang();
+
+  const id_barang = Number(id)
 
   const liked = like.find((item) => item.id === id_barang);
 
@@ -28,7 +36,12 @@ function DetailBarangFoot({ like }: { like: likeData[] }) {
 
   const handleLike = () => {
     if (isLikedButton) {
-      alert("Barang sudah disukai");
+      MySwal.fire({
+        title: "Gagal",
+        text: "Barang telah ditambahkan ke wishlist",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
     } else {
       mutation.mutate({ id_barang, id_user });
     }

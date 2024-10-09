@@ -10,7 +10,7 @@ function DetailBarangImg({ gambar }: detailGambar) {
                     <CarouselContent>
                         {gambar.map((gambar: string, index: number) => (
                             <CarouselItem key={index}>
-                                <IKImage urlEndpoint={import.meta.env.VITE_IMAGEKIT_PUBLIC_URL_ENDPOINT} path={gambar} transformation={[{ quality: "10" }]} alt={`Image ${index + 1}`} className="w-full h-full object-contain" />
+                                <IKImage urlEndpoint={import.meta.env.VITE_IMAGEKIT_PUBLIC_URL_ENDPOINT} path={gambar} transformation={[{ quality: "10" }]} alt={`Image ${index + 1}`} className="w-full h-[32vh] object-contain overflow-hidden" />
                             </CarouselItem>
                         ))}
                     </CarouselContent>

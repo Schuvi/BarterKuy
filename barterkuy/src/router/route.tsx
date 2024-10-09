@@ -4,9 +4,10 @@ import HomePage from "@/pages/home/homePage";
 import SignUpPage from "@/pages/auth/signup/signUpPage";
 import OtpVerifPage from "@/pages/auth/otpVerify/otpVerifPage";
 import DetailBarang from "@/pages/detail/detailBarang";
-import LikeBarang from "@/pages/like_barang/likedBarang";
+import LikeBarang from "@/pages/likeBarang/likedBarang";
 import SearchPage from "@/pages/search/searchPage";
 import Navbar from "@/layouts/navbar/navbar";
+import GiveThings from "@/pages/pengajuan/pengajuanPage";
 
 function Layout() {
   const location = useLocation();
@@ -62,6 +63,11 @@ const router = createBrowserRouter([
       {
         path: "/search",
         element: <SearchPage />,
+        caseSensitive: true,
+      },
+      {
+        path: "/give",
+        element: <GiveThings />,
         caseSensitive: true,
       },
     ],
