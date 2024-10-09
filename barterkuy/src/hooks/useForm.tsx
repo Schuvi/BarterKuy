@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 // SingnUp Form Handler
 const signFormScheme = z
@@ -80,21 +80,20 @@ export const OtpHandler = (email: string) => {
 // search filter
 const searchFilterScheme = z.object({
   provinsi: z.string().min(1, "Pilih minimal 1 provinsi"),
-  kabupaten: z.string().min(1, "Pilih minimal 1 kota")
+  kabupaten: z.string().min(1, "Pilih minimal 1 kota"),
 });
 
-type SearchFilterScheme = z.infer<typeof searchFilterScheme>
+type SearchFilterScheme = z.infer<typeof searchFilterScheme>;
 
 export const searchFilterHandler = () => {
   const formSearchFilter = useForm<SearchFilterScheme>({
     resolver: zodResolver(searchFilterScheme),
-  })
+  });
 
-  const {handleSubmit, control} = formSearchFilter
+  const { handleSubmit, control } = formSearchFilter;
 
-  return {handleSubmit, control, formSearchFilter}
-}
-
+  return { handleSubmit, control, formSearchFilter };
+};
 
 // Form Pengajuan
 const formPengajuanScheme = z.object({
@@ -105,31 +104,42 @@ const formPengajuanScheme = z.object({
   lokasi: z.string().min(3, "Lokasi minimal 3 karakter"),
   locNow: z.boolean().default(false).optional(),
   jenis_penawaran: z.string().min(1, "Pilih salah satu dari penawaran yang tersedia"),
-  fileImg: z.array(z.object({fileName: z.string(), filePath: z.string()}))
-})
+  fileImg: z.array(z.object({ fileName: z.string(), filePath: z.string(), fileId: z.string() })),
+});
 
-type FormPengajuanScheme = z.infer<typeof formPengajuanScheme>
+type FormPengajuanScheme = z.infer<typeof formPengajuanScheme>;
 
 export const formPengajuanHandler = () => {
-  const user_id = useSelector((state: RootState) => state.user.user_id)
+  const user_id = useSelector((state: RootState) => state.user.user_id);
 
   const fileImg = useSelector((state: RootState) => state.user.fileUpload);
-  
+
+  const location = useSelector((state: RootState) => state.user.kabupaten);
+
+  const isDisabled = useSelector((state: RootState) => state.user.disabledLoc);
+
   const formPengajuan = useForm<FormPengajuanScheme>({
     resolver: zodResolver(formPengajuanScheme),
     defaultValues: {
       user: user_id,
-      fileImg: []
-    }
-  })
+      fileImg: [],
+      lokasi: isDisabled? location : "",
+    },
+  });
 
-  const {handleSubmit, control, setValue} = formPengajuan
+  const { handleSubmit, control, setValue } = formPengajuan;
 
   useEffect(() => {
     if (fileImg) {
       setValue("fileImg", fileImg);
     }
-  }, [fileImg])
+  }, [fileImg]);
 
-  return {handleSubmit, control, formPengajuan}
-}
+  useEffect(() => {
+    if (isDisabled) {
+      setValue("lokasi", location);
+    }
+  }, [isDisabled, location]);
+
+  return { handleSubmit, control, formPengajuan };
+};

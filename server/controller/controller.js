@@ -23,8 +23,6 @@ const barterController = {
 
       const sqlPengguna3 = "SELECT email, nama_lengkap FROM pengguna WHERE email = ? OR nama_lengkap = ?";
 
-      console.log(email);
-
       const [responseSql3] = await connection.query(sqlPengguna3, [email, nama_lengkap]);
 
       if (responseSql3.length === 1) {
@@ -164,8 +162,6 @@ const barterController = {
       await connection.beginTransaction();
 
       const { lokasi, kategori } = req.query;
-
-      console.log(req.query);
 
       const sql =
         'SELECT id, nama_barang, deskripsi_barang, barang.lokasi, jenis_penawaran, status_pengajuan, status_barter, kategori, pengguna.nama_lengkap, link_gambar from barang JOIN kategori_barang ON barang.kategori_barang=kategori_barang.kategori_id JOIN pengguna ON barang.user_id=pengguna.user_id JOIN gambar_barang ON gambar_barang.barang_id=barang.id WHERE status_pengajuan = "diterima" AND barang.lokasi = ?';
@@ -312,8 +308,6 @@ const barterController = {
 
       const { user_id, nama_barang, deskripsi_barang, kategori_barang, lokasi, jenis_penawaran, link_gambar } = req.body;
 
-      console.log(link_gambar);
-
       const sql = 'INSERT INTO barang (user_id, nama_barang, deskripsi_barang, kategori_barang, lokasi, jenis_penawaran, status_pengajuan, status_barter) VALUES (?, ?, ?, ?, ?, ?, "diajukan", null)';
 
       const [response] = await connection.query(sql, [user_id, nama_barang, deskripsi_barang, kategori_barang, lokasi, jenis_penawaran]);
@@ -323,9 +317,9 @@ const barterController = {
 
         const linkGambarArray = JSON.parse(link_gambar);
 
-        const sqlGambar = "INSERT INTO gambar_barang (barang_id, link_gambar) VALUES (?, ?)";
+        const sqlGambar = "INSERT INTO gambar_barang (barang_id, link_gambar, fileId) VALUES (?, ?, ?)";
         for (const gambar of linkGambarArray) {
-          await connection.query(sqlGambar, [barangId, gambar.filePath]);
+          await connection.query(sqlGambar, [barangId, gambar.filePath, gambar.fileId]);
         }
 
         res.status(201).json({
@@ -436,8 +430,6 @@ const barterController = {
 
       const [response] = await connection.query(sql, [email, otp]);
 
-      console.log(response);
-
       if (response.affectedRows === 1) {
         mailSender(
           email,
@@ -547,8 +539,6 @@ const barterController = {
 
       const { reporter_id, target_id, alasan, isi_laporan } = req.body;
 
-      console.log(req.body);
-
       const sqlLaporkan = "INSERT INTO laporan (reporter_id, target_id, alasan, isi_laporan) VALUES (?, ?, ?, ?)";
 
       const [response] = await connection.query(sqlLaporkan, [reporter_id, target_id, alasan, isi_laporan]);
@@ -560,8 +550,6 @@ const barterController = {
           statusCode: 200,
           message: "Laporan berhasil disimpan",
         });
-
-        console.log("affectedRows", response.affectedRows);
       }
     } catch (error) {
       await connection.rollback();
@@ -700,8 +688,6 @@ const barterController = {
 
       const { lokasi, nama_barang } = req.query;
 
-      console.log(req.query);
-
       const sqlSearchLoc =
         "SELECT id, nama_barang, deskripsi_barang, barang.lokasi, jenis_penawaran, status_pengajuan, status_barter, kategori, pengguna.nama_lengkap, link_gambar from barang JOIN kategori_barang ON barang.kategori_barang=kategori_barang.kategori_id JOIN pengguna ON barang.user_id=pengguna.user_id JOIN gambar_barang ON gambar_barang.barang_id=barang.id WHERE status_pengajuan = 'diterima' AND barang.lokasi = ? AND nama_barang LIKE ?";
 
@@ -775,13 +761,12 @@ const barterController = {
       }
     } catch (error) {
       await connection.rollback();
+      console.error(error)
       res.status(500).json({
         statusCode: 500,
         message: "Internal server error :",
         error,
       });
-
-      console.log(error);
     } finally {
       connection.release();
     }

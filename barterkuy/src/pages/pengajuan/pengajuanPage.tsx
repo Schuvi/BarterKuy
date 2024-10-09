@@ -6,7 +6,6 @@ function GiveThings() {
 
   return (
     <>
-      <h1>Pengajuan Barang</h1>
       <GiveThingsForm kategori={kategori?.data} loadingData={loadingKategori} errorData={errorKategori}/>
     </>
   );

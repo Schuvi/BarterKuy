@@ -7,11 +7,15 @@ import { Card, CardContent } from "@/components/ui/card";
 import { IKImage } from "imagekitio-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import withReactContent from "sweetalert2-react-content";
+import Swal from "sweetalert2";
 
 function SearchResult() {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const navigate = useNavigate();
+
+  const MySwal = withReactContent(Swal)
 
   const nama_barang = searchParams.get("nama_barang");
 
@@ -21,7 +25,12 @@ function SearchResult() {
   const { data: searchValue, isError: error, isLoading: loading } = fetchSearchThings(nama_barang as string, triggerSearch as boolean, lokasiSearch as string);
 
   if (error) {
-    alert("Gagal mengambil data");
+    MySwal.fire({
+      title: "Error",
+      text: "Gagal mengambil data",
+      icon: "error",
+      confirmButtonText: "OK",
+    });
   }
 
   if (loading) {

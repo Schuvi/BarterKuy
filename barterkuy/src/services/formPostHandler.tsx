@@ -1,7 +1,6 @@
 import { api } from "./axiosConfig";
 import { useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "@/redux/store";
+import { useDispatch } from "react-redux";
 import { update } from "@/redux/userSlice";
 import { signUpHandler, LoginHandler, formPengajuanHandler } from "@/hooks/useForm";
 import Swal from "sweetalert2";
@@ -15,6 +14,8 @@ export const signPostHandler = () => {
   const dispatch = useDispatch();
 
   const navigate = useNavigate();
+
+  const MySwal = withReactContent(Swal)
 
   const { handleSubmit, control, formSignUp } = signUpHandler();
 
@@ -38,7 +39,12 @@ export const signPostHandler = () => {
     const emailRes = values.email;
 
     if (response.data.message === "User creation success") {
-      alert("Success");
+      MySwal.fire({
+        title: "Berhasil",
+        text: "Akun berhasil dibuat",
+        icon: "success",
+        confirmButtonText: "OK",
+      });
       dispatch(update({ email: emailRes }));
       navigate("/otpVerification");
     }
@@ -183,6 +189,8 @@ export const OtpPostVerify = (email: string) => {
 export const DeleteLike = (user_id: number) => {
   const queryClient = useQueryClient();
 
+  const MySwal = withReactContent(Swal)
+
   const deleteLikeBarang = useMutation({
     mutationFn: async ({ id, user_id }: { id: number; user_id: number }) => {
       const response = await api.post(
@@ -200,12 +208,22 @@ export const DeleteLike = (user_id: number) => {
     },
     onSuccess: (data) => {
       if (data.message === "Success delete liked things") {
-        alert("Berhasil menghapus barang dari daftar");
+        MySwal.fire({
+          title: "Berhasil",
+          text: "Berhasil menghapus barang dari whistlist",
+          icon: "success",
+          confirmButtonText: "OK",
+        });
         queryClient.invalidateQueries({ queryKey: ["liked", user_id] });
       }
     },
     onError: (error) => {
-      alert(error);
+      MySwal.fire({
+        title: "Gagal",
+        text: "Gagal menghapus barang",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
     },
   });
 
@@ -214,6 +232,8 @@ export const DeleteLike = (user_id: number) => {
 
 export const likeBarang = () => {
   const navigate = useNavigate();
+
+  const MySwal = withReactContent(Swal);
 
   return useMutation({
     mutationFn: async ({ id_barang, id_user }: { id_barang: number; id_user: number }) => {
@@ -232,12 +252,22 @@ export const likeBarang = () => {
     },
     onSuccess: (data) => {
       if (data.message === "Successfull liked things") {
-        alert("Berhasil menambahkan barang ke daftar");
+        MySwal.fire({
+          title: "Success",
+          text: "Berhasil ditambahkan ke wishlist",
+          icon: "success",
+          confirmButtonText: "OK",
+        });
         navigate("/liked");
       }
     },
     onError: (error) => {
-      alert(error);
+      MySwal.fire({
+        title: "Gagal",
+        text: "Gagal menambahkan ke wishlist",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
     },
   });
 };
@@ -245,24 +275,35 @@ export const likeBarang = () => {
 export const handlePostPengajuan = () => {
   const { handleSubmit, control, formPengajuan } = formPengajuanHandler();
 
+  const MySwal = withReactContent(Swal);
+
   const handlePostForm = handleSubmit(async (value) => {
-    const formData: FormData = new FormData();
-    formData.append("user_id", String(value.user));
-    formData.append("nama_barang", value.nama_barang);
-    formData.append("deskripsi_barang", value.deskripsi_barang);
-    formData.append("kategori_barang", String(value.kategori_barang));
-    formData.append("lokasi", value.lokasi);
-    formData.append("jenis_penawaran", value.jenis_penawaran);
-    formData.append("link_gambar", JSON.stringify(value.fileImg));
+    if (value.fileImg.length < 1) {
+      MySwal.fire({
+        title: "Error",
+        text: "Silahkan mengunggah minimal 1 gambar!",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+    } else {
+      const formData: FormData = new FormData();
+      formData.append("user_id", String(value.user));
+      formData.append("nama_barang", value.nama_barang);
+      formData.append("deskripsi_barang", value.deskripsi_barang);
+      formData.append("kategori_barang", String(value.kategori_barang));
+      formData.append("lokasi", value.lokasi);
+      formData.append("jenis_penawaran", value.jenis_penawaran);
+      formData.append("link_gambar", JSON.stringify(value.fileImg));
 
-    const response = await api.post("/post/barang", formData, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+      const response = await api.post("/post/barang", formData, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
-    if (response) {
-      console.log(response);
+      if (response) {
+        console.log(response);
+      }
     }
   });
 

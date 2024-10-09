@@ -2,9 +2,10 @@ import imageKitAuthenticator from "@/services/imageKitAuth";
 import { IKContext, IKUpload, IKImage } from "imagekitio-react";
 import { Progress } from "@/components/ui/progress";
 import { useState, useRef } from "react";
-import { Button } from "@/components/ui/button";
 import { useDispatch } from "react-redux";
 import { update } from "@/redux/userSlice";
+import withReactContent from "sweetalert2-react-content";
+import Swal from "sweetalert2";
 
 function GiveThingsUpImg() {
   const [uploadProgress, setUploadProgress] = useState<number>(0);
@@ -12,20 +13,30 @@ function GiveThingsUpImg() {
   const [showPlus, setShowPlus] = useState<boolean>(true);
   const dispatch = useDispatch();
 
+  const MySwal = withReactContent(Swal)
+
   const onError = (err: any) => {
-    alert(`Error uploading: ${err}`);
+    MySwal.fire({
+        title: "Gagal mengunggah gambar",
+        text: `Upload error ${err}`,
+        icon: "error",
+        confirmButtonText: "OK",
+    });
   };
 
   const onSuccess = (res: any) => {
-    alert("Upload Success!");
+    MySwal.fire({
+        title: "Berhasil",
+        text: "Berhasil mengunggah gambar",
+        icon: "success",
+        confirmButtonText: "OK",
+    });
     setUploadProgress(0);
-    setShowPlus(true); // Show plus button again
+    setShowPlus(true);
 
-    // Add the newly uploaded file to the state array
-    const newFile = { fileName: res.name, filePath: res.filePath };
+    const newFile = { fileName: res.name, filePath: res.filePath, fileId: res.fileId };
     setUploadedFiles((prevFiles) => [...prevFiles, newFile]);
 
-    // Update Redux store with the new array of uploaded files
     dispatch(update({ fileUpload: [...uploadedFiles, newFile] }));
   };
 
@@ -37,7 +48,7 @@ function GiveThingsUpImg() {
   const onFileChange = (e: any) => {
     const selectedFile = e.target.files[0];
     if (selectedFile) {
-      setShowPlus(false); // Hide plus button when a file is selected
+      setShowPlus(false);
     }
   };
 
@@ -45,48 +56,24 @@ function GiveThingsUpImg() {
 
   return (
     <div className="container text-center mt-3">
-      <IKContext
-        publicKey={import.meta.env.VITE_IMAGEKIT_PUBLIC_KEY}
-        urlEndpoint={import.meta.env.VITE_IMAGEKIT_PUBLIC_URL_ENDPOINT}
-        authenticator={imageKitAuthenticator}
-      >
+      <IKContext publicKey={import.meta.env.VITE_IMAGEKIT_PUBLIC_KEY} urlEndpoint={import.meta.env.VITE_IMAGEKIT_PUBLIC_URL_ENDPOINT} authenticator={imageKitAuthenticator}>
         <div className="flex flex-wrap justify-center gap-4">
-          {/* Display all uploaded images with names */}
           {uploadedFiles.length > 0 &&
             uploadedFiles.map((file, index) => (
               <div key={index} className="p-2 border border-gray-300 rounded-lg">
                 <IKImage urlEndpoint={import.meta.env.VITE_IMAGEKIT_PUBLIC_URL_ENDPOINT} path={file.filePath} transformation={[{ quality: "10" }]} alt={`Image ${index + 1}`} className="h-24 w-24 object-cover rounded" />
-                {/* <p className="mt-2">{file.fileName}</p> */}
               </div>
             ))}
 
-          {/* Plus button for adding new image */}
           {showPlus && (
-            <button
-              className="h-24 w-24 border border-gray-400 text-gray-500 rounded flex items-center justify-center text-2xl hover:bg-gray-200"
-              onClick={() => ikUpload.current?.click()}
-              type="button"
-            >
+            <button className="h-24 w-24 border border-gray-400 text-gray-500 rounded flex items-center justify-center text-2xl hover:bg-gray-200" onClick={() => ikUpload.current?.click()} type="button">
               +
             </button>
           )}
         </div>
 
-        {/* Hidden File Upload Component */}
-        <IKUpload
-          fileName="barang"
-          onError={onError}
-          onSuccess={onSuccess}
-          folder={"/barang"}
-          useUniqueFileName={true}
-          onUploadProgress={onUploadProgress}
-          className="hidden"
-          onChange={onFileChange}
-          multiple={false}
-          ref={ikUpload}
-        />
+        <IKUpload fileName="barang" onError={onError} onSuccess={onSuccess} folder={"/barang"} useUniqueFileName={true} onUploadProgress={onUploadProgress} className="hidden" onChange={onFileChange} multiple={false} ref={ikUpload} />
 
-        {/* Display upload progress if a file is being uploaded */}
         {uploadProgress > 0 && (
           <div className="mt-7">
             <Progress value={uploadProgress} />
