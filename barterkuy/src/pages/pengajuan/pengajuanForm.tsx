@@ -65,7 +65,7 @@ function GiveThingsForm({ kategori, loadingData, errorData }: { kategori: dataKa
                   <FormItem>
                     <FormLabel>Nama Barang</FormLabel>
                     <FormControl>
-                      <Input {...field} type="text" placeholder="Nama barang" value={field.value || ''} />
+                      <Input {...field} type="text" placeholder="Nama barang" value={field.value || ""} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -107,17 +107,13 @@ function GiveThingsForm({ kategori, loadingData, errorData }: { kategori: dataKa
                       }}
                       value={selection}
                     >
-                      <SelectTrigger>{selection ? selection : "Pilih kategori barang"}</SelectTrigger>
+                      <SelectTrigger>{errorData ? "Data Error" : loadingData ? "Loading..." : selection ? selection : "Pilih kategori barang"}</SelectTrigger>
                       <SelectContent>
-                        {errorData
-                          ? "Data Error"
-                          : loadingData
-                          ? "Loading..."
-                          : kategori?.map((item: dataKategori) => (
-                              <SelectItem key={item.kategori_id} value={item.kategori}>
-                                {item.kategori}
-                              </SelectItem>
-                            ))}
+                        {kategori?.map((item: dataKategori) => (
+                          <SelectItem key={item.kategori_id} value={item.kategori}>
+                            {item.kategori}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -180,8 +176,7 @@ function GiveThingsForm({ kategori, loadingData, errorData }: { kategori: dataKa
                       }}
                       value={selection}
                     >
-                      <SelectTrigger>{selectionPenawaran ? selectionPenawaran : "Pilih Jenis Penawaran"}</SelectTrigger>
-
+                      <SelectTrigger>{selectionPenawaran ? selectionPenawaran : "Pilih jenis penawaran"}</SelectTrigger>
                       <SelectContent>
                         <SelectItem value="Barter">Barter</SelectItem>
                         <SelectItem value="Gratis">Gratis</SelectItem>
