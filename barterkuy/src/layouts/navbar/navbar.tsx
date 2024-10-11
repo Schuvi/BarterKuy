@@ -18,6 +18,8 @@ function Navbar() {
 
   const kategoriNow = useSelector((state: RootState) => state.user.kategori);
 
+  const user_id = useSelector((state: RootState) => state.user.user_id);
+
   const handleKategori = (kategori: string) => {
     if (kategoriNow !== kategori) {
       dispatch(update({ kategori: kategori }));
@@ -35,7 +37,7 @@ function Navbar() {
           <img src={receiveImg} alt="receive" className="w-[10vw]" />
           <img src={giveImg} alt="give" className="w-[10vw]" onClick={() => navigate("/give")}/>
           <img src={searchImg} alt="search" className="w-[10vw]" onClick={() => navigate("/search")}/>
-          <img src={userImg} alt="user" className="w-[10vw]" />
+          <img src={userImg} alt="user" className="w-[10vw]" onClick={() => navigate(`/profile/${user_id}`)}/>
         </div>
       </nav>
 

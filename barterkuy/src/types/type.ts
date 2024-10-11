@@ -49,3 +49,17 @@ export interface dataKategori {
   kategori_id: number;
   kategori: string;
 }
+
+export interface dataImgProfile {
+  gambar_profile: string | null;
+}
+
+export interface dataProfile extends dataImgProfile {
+  email: string;
+  nama_lengkap: string;
+  nomor_telepon: string;
+  role: string;
+  provinsi: string;
+  kota: string;
+  kecamatan: string;
+}

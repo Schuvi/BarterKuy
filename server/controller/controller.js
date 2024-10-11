@@ -761,7 +761,7 @@ const barterController = {
       }
     } catch (error) {
       await connection.rollback();
-      console.error(error)
+      console.error(error);
       res.status(500).json({
         statusCode: 500,
         message: "Internal server error :",
@@ -805,6 +805,42 @@ const barterController = {
       res.status(500).json({
         statusCode: 500,
         message: "Internal server error :",
+      });
+    } finally {
+      connection.release();
+    }
+  },
+
+  getUserProfile: async (req, res) => {
+    const connection = await pool.getConnection();
+    try {
+      await connection.beginTransaction();
+
+      const { user_id } = req.query;
+
+      const sqlProfile = "SELECT email, nama_lengkap, nomor_telepon, gambar_profile, role, lokasi.provinsi, lokasi.kota, lokasi.kecamatan FROM pengguna JOIN lokasi ON pengguna.lokasi = lokasi.id_lokasi WHERE pengguna.user_id = ?";
+
+      const [response] = await connection.query(sqlProfile, [user_id]);
+
+      await connection.commit();
+
+      if (response.length > 0) {
+        res.status(200).json({
+          statusCode: 200,
+          message: "Success retrieved user profile",
+          data: response,
+        });
+      } else {
+        res.status(404).json({
+          statusCode: 404,
+          message: "Not found",
+        });
+      }
+    } catch (error) {
+      await connection.rollback();
+      res.status(500).json({
+        statusCode: 500,
+        message: "Internal server error",
       });
     } finally {
       connection.release();

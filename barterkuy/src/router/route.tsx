@@ -7,6 +7,7 @@ import DetailBarang from "@/pages/detail/detailBarang";
 import LikeBarang from "@/pages/likeBarang/likedBarang";
 import SearchPage from "@/pages/search/searchPage";
 import Navbar from "@/layouts/navbar/navbar";
+import ProfilePage from "@/pages/profile/profilePage";
 import GiveThings from "@/pages/pengajuan/pengajuanPage";
 
 function Layout() {
@@ -68,6 +69,11 @@ const router = createBrowserRouter([
       {
         path: "/give",
         element: <GiveThings />,
+        caseSensitive: true,
+      },
+      {
+        path: "/profile/:user_id",
+        element: <ProfilePage />,
         caseSensitive: true,
       },
     ],

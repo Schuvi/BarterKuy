@@ -83,3 +83,13 @@ export const fetchKategori = async () => {
 
   return response.data;
 };
+
+export const fetchProfile = async (user_id: string) => {
+  const response = await api.get("/get/user", {
+    params: {
+      user_id: user_id,
+    },
+  });
+
+  return response.data;
+};

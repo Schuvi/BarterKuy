@@ -31,5 +31,6 @@ router.get("/detail", barterController.detailBarang);
 router.get("/get/liked", barterController.getLikeBarang);
 router.get("/get/auth/imagekit", barterController.reqUploadGambar);
 router.get("/get/kategori", barterController.getKategori);
+router.get("/get/user", barterController.getUserProfile);
 
 module.exports = router;

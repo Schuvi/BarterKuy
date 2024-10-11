@@ -12,7 +12,6 @@ import { Textarea } from "@/components/ui/textarea";
 import axios from "axios";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
-import { useEffect, useState } from "react";
 
 const laporPenggunaForm = z.object({
   alasan: z.string().min(1, "Pilih minimal 1 alasan"),

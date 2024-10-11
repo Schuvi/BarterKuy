@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { fetchPosts, fetchKab, fetchDetail, fetchProvinsi, fetchKota, fetchKecamatan, fetchLiked, fetchSearch, fetchKategori } from "@/services/fetchApi";
+import { fetchPosts, fetchKab, fetchDetail, fetchProvinsi, fetchKota, fetchKecamatan, fetchLiked, fetchSearch, fetchKategori, fetchProfile } from "@/services/fetchApi";
 
 export const usePosts = (location: string, kategori?: string) => {
   return useQuery({
@@ -84,3 +84,12 @@ export const fetchAllKategori = () => {
     refetchInterval: false,
   });
 };
+
+export const fetchProfileUser = (user_id : string) => {
+  return useQuery({
+    queryKey: ["profile", user_id],
+    queryFn: async ({queryKey}) => fetchProfile(queryKey[1] as string),
+    retry: 1,
+    refetchInterval: false,
+  })
+}
