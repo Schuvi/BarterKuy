@@ -15,7 +15,7 @@ export const signPostHandler = () => {
 
   const navigate = useNavigate();
 
-  const MySwal = withReactContent(Swal)
+  const MySwal = withReactContent(Swal);
 
   const { handleSubmit, control, formSignUp } = signUpHandler();
 
@@ -189,7 +189,7 @@ export const OtpPostVerify = (email: string) => {
 export const DeleteLike = (user_id: number) => {
   const queryClient = useQueryClient();
 
-  const MySwal = withReactContent(Swal)
+  const MySwal = withReactContent(Swal);
 
   const deleteLikeBarang = useMutation({
     mutationFn: async ({ id, user_id }: { id: number; user_id: number }) => {
@@ -308,4 +308,26 @@ export const handlePostPengajuan = () => {
   });
 
   return { control, handlePostForm, formPengajuan };
+};
+
+export const handleEditImgProfile = async (gambar_profile: string, oldImgId: string, newImgId: string, user_id: string ) => {
+  const response = await api.post("/delete/img", {}, {
+    params: {
+      fileId: oldImgId
+    }
+  })
+
+  if (response.data.statusCode === 200) {
+    await api.post("/update/profile/img", {}, {
+      params: {
+        gambar_profile: gambar_profile,
+        gambar_id: newImgId,
+        user_id: user_id
+      }
+    })
+
+    return true
+  } else if (response.data.statusCode === 400) {
+    return false
+  }
 };

@@ -52,6 +52,8 @@ export interface dataKategori {
 
 export interface dataImgProfile {
   gambar_profile: string | null;
+  user_id: string | undefined;
+  gambar_id: string;
 }
 
 export interface dataProfile extends dataImgProfile {

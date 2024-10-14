@@ -4,7 +4,6 @@ import { useSelector } from "react-redux";
 import ProfilePicture from "./profilePicture";
 import { dataProfile } from "@/types/type";
 import { useParams } from "react-router-dom";
-import { useEffect } from "react";
 
 function ProfilePage() {
     const {user_id} = useParams()
@@ -15,12 +14,6 @@ function ProfilePage() {
 
     const profileData = profile?.data || [];
 
-    console.log(profileData)
-    
-    useEffect(() => {
-        console.log(user_id)
-    }, [])
-
     const dataImage = profileData.find((item: dataProfile) => item.email === email_user)
 
     if (errorProfile) {
@@ -30,7 +23,7 @@ function ProfilePage() {
   return (
     <>
         <section>
-            <ProfilePicture gambar_profile={dataImage?.gambar_profile}/>
+            <ProfilePicture gambar_profile={dataImage?.gambar_profile} user_id={user_id} gambar_id={dataImage?.gambar_id}/>
         </section>
     </>
   );

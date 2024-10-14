@@ -466,7 +466,7 @@ const barterController = {
 
       const sqlVerify = "SELECT email, otp FROM otp WHERE email = ?";
 
-      const sqlValidEmail = 'UPDATE pengguna set verifikasi = "valid" WHERE email = ?';
+      const sqlValidEmail = 'UPDATE pengguna SET verifikasi = "valid" WHERE email = ?';
 
       const sqlDeleteOtp = "DELETE FROM otp WHERE email = ?";
 
@@ -818,7 +818,8 @@ const barterController = {
 
       const { user_id } = req.query;
 
-      const sqlProfile = "SELECT email, nama_lengkap, nomor_telepon, gambar_profile, role, lokasi.provinsi, lokasi.kota, lokasi.kecamatan FROM pengguna JOIN lokasi ON pengguna.lokasi = lokasi.id_lokasi WHERE pengguna.user_id = ?";
+      const sqlProfile =
+        "SELECT email, nama_lengkap, nomor_telepon, gambar_profile, gambar_id, role, lokasi.provinsi, lokasi.kota, lokasi.kecamatan FROM pengguna JOIN lokasi ON pengguna.lokasi = lokasi.id_lokasi WHERE pengguna.user_id = ?";
 
       const [response] = await connection.query(sqlProfile, [user_id]);
 
@@ -844,6 +845,64 @@ const barterController = {
       });
     } finally {
       connection.release();
+    }
+  },
+
+  editProfileImg: async (req, res) => {
+    const connection = await pool.getConnection();
+
+    try {
+      await connection.beginTransaction();
+
+      const { gambar_profile, gambar_id, user_id } = req.query;
+
+      console.log("ini edit profile", req.query)
+
+      const sqlEditImg = "UPDATE pengguna SET gambar_profile = ?, gambar_id = ? WHERE user_id = ?";
+
+      const [response] = await connection.query(sqlEditImg, [gambar_profile, gambar_id, user_id]);
+
+      if (response) {
+        res.status(201).json({
+          statusCode: 201,
+          message: "Success updated profile image",
+        });
+      }
+
+      await connection.commit();
+    } catch (error) {
+      await connection.rollback();
+      res.status(500).json({
+        statusCode: 500,
+        message: "Internal server error",
+      });
+    } finally {
+      connection.release();
+    }
+  },
+
+  deleteImageKit: async (req, res) => {
+    try {
+      const { fileId } = req.query;
+
+      imagekit.deleteFile(fileId, (err, result) => {
+        if (err) {
+          return res.status(400).json({
+            statusCode: 400,
+            message: "Failed to delete image",
+          })
+        }
+
+        res.status(200).json({
+          statusCode: 200,
+          message: "Success delete image",
+          data: result
+        })
+      });
+    } catch (error) {
+      res.json({
+        message: "Image delete failed",
+      });
     }
   },
 };
