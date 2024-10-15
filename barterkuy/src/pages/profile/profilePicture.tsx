@@ -4,8 +4,9 @@ import camera from "../../assets/camera_white_500px.png";
 import EditProfileImgModal from "@/components/modal/editProfileImg";
 import { useState } from "react";
 import { useParams } from "react-router-dom";
+import { Skeleton } from "@/components/ui/skeleton";
 
-function ProfilePicture({ gambar_profile, gambar_id }: dataImgProfile) {
+function ProfilePicture({ gambar_profile, gambar_id, isLoading }: dataImgProfile) {
   const [openModal, setOpenModal] = useState<boolean>(false);
 
   const { user_id } = useParams();
@@ -13,6 +14,22 @@ function ProfilePicture({ gambar_profile, gambar_id }: dataImgProfile) {
   const closeModal = () => {
     setOpenModal(!openModal);
   };
+
+  if (isLoading) {
+    return (
+      <>
+        <div className="container flex justify-center mt-4">
+          <div className="container w-[40vw] h-[19vh] rounded-full ml-[2em]">
+            <Skeleton className="w-full h-full rounded-full" />
+          </div>
+
+          <div className="relative w-[10vw] h-[5vh] top-[6.5em] right-10 rounded-full">
+            <Skeleton className="w-full h-full rounded-full" />
+          </div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
@@ -37,7 +54,7 @@ function ProfilePicture({ gambar_profile, gambar_id }: dataImgProfile) {
         </div>
       </div>
 
-      {openModal && <EditProfileImgModal onClose={closeModal} cancel={closeModal} gambar_id={gambar_id} gambar_profile={gambar_profile as string} user_id={user_id as string} />}
+      {openModal && <EditProfileImgModal cancel={closeModal} gambar_id={gambar_id} user_id={user_id as string} />}
     </>
   );
 }

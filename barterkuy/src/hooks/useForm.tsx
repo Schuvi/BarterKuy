@@ -123,7 +123,7 @@ export const formPengajuanHandler = () => {
     defaultValues: {
       user: user_id,
       fileImg: [],
-      lokasi: isDisabled? location : "",
+      lokasi: isDisabled ? location : "",
     },
   });
 
@@ -142,4 +142,50 @@ export const formPengajuanHandler = () => {
   }, [isDisabled, location]);
 
   return { handleSubmit, control, formPengajuan };
+};
+
+// Edit nama profile
+const editProfileNameScheme = z.object({
+  user: z.number().min(1, "User ID harus diisi"),
+  nama_lengkap: z.string().min(3, "Nama minimal 3 karakter").max(50, "Nama maksimal 50 karakter"),
+});
+
+type profileNameScheme = z.infer<typeof editProfileNameScheme>;
+
+export const editProfileNameHandler = () => {
+  const user_id = useSelector((state: RootState) => state.user.user_id)
+
+  const formEditName = useForm<profileNameScheme>({
+    resolver: zodResolver(editProfileNameScheme),
+    defaultValues: {
+      user: user_id
+    }
+  });
+
+  const { handleSubmit, control } = formEditName;
+
+  return { formEditName, handleSubmit, control };
+};
+
+// Edit telpon profile
+const editProfileTelephoneScheme = z.object({
+  user: z.number().min(1, "User ID harus diisi"),
+  nomor_telepon: z.string().min(10, "Nomor telepon minimal 10 karakter").max(12, "Nama maksimal 12 karakter"),
+});
+
+type profileTelephoneScheme = z.infer<typeof editProfileTelephoneScheme>;
+
+export const editProfileTelephoneHandler = () => {
+  const user_id = useSelector((state: RootState) => state.user.user_id)
+
+  const formEditTelephone = useForm<profileTelephoneScheme>({
+    resolver: zodResolver(editProfileTelephoneScheme),
+    defaultValues: {
+      user: user_id
+    }
+  });
+
+  const { handleSubmit, control } = formEditTelephone;
+
+  return { formEditTelephone, handleSubmit, control };
 };

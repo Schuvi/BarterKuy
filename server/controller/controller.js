@@ -167,7 +167,7 @@ const barterController = {
         'SELECT id, nama_barang, deskripsi_barang, barang.lokasi, jenis_penawaran, status_pengajuan, status_barter, kategori, pengguna.nama_lengkap, link_gambar from barang JOIN kategori_barang ON barang.kategori_barang=kategori_barang.kategori_id JOIN pengguna ON barang.user_id=pengguna.user_id JOIN gambar_barang ON gambar_barang.barang_id=barang.id WHERE status_pengajuan = "diterima" AND barang.lokasi = ?';
 
       const sqlKategori =
-        'SELECT id, nama_barang, deskripsi_barang, barang.lokasi, jenis_penawaran, status_pengajuan, status_barter, kategori, pengguna.nama_lengkap, link_gambar from barang JOIN kategori_barang ON barang.kategori_barang=kategori_barang.kategori_id JOIN pengguna ON barang.user_id=pengguna.user_id JOIN gambar_barang ON gambar_barang.barang_id=barang.id WHERE status_pengajuan = "diterima" AND barang.lokasi = ? AND  kategori_barang = ?';
+        'SELECT id, nama_barang, deskripsi_barang, barang.lokasi, jenis_penawaran, status_pengajuan, status_barter, kategori, pengguna.nama_lengkap, link_gambar from barang JOIN kategori_barang ON barang.kategori_barang=kategori_barang.kategori_id JOIN pengguna ON barang.user_id=pengguna.user_id JOIN gambar_barang ON gambar_barang.barang_id=barang.id WHERE status_pengajuan = "diterima" AND barang.lokasi = ? AND kategori_barang = ?';
 
       await connection.commit();
 
@@ -255,7 +255,7 @@ const barterController = {
       const { id } = req.query;
 
       const sqlDetail =
-        'SELECT id, nama_barang, deskripsi_barang, barang.lokasi, jenis_penawaran, status_pengajuan, status_barter, kategori, pengguna.user_id, pengguna.nama_lengkap, pengguna.gambar_profile, lokasi.kota, lokasi.kecamatan, link_gambar from barang JOIN kategori_barang ON barang.kategori_barang=kategori_barang.kategori_id JOIN pengguna ON barang.user_id=pengguna.user_id JOIN gambar_barang ON gambar_barang.barang_id=barang.id JOIN lokasi ON pengguna.lokasi=lokasi.id_lokasi WHERE status_pengajuan = "diterima" AND id = ?';
+        'SELECT id, nama_barang, deskripsi_barang, barang.lokasi, jenis_penawaran, status_pengajuan, status_barter, kategori, pengguna.user_id, pengguna.nama_lengkap, pengguna.gambar_profile, lokasi.kota, lokasi.kecamatan, link_gambar FROM barang JOIN kategori_barang ON barang.kategori_barang=kategori_barang.kategori_id JOIN pengguna ON barang.user_id=pengguna.user_id JOIN gambar_barang ON gambar_barang.barang_id=barang.id JOIN lokasi ON pengguna.lokasi=lokasi.id_lokasi WHERE status_pengajuan = "diterima" AND id = ?';
 
       const [response] = await connection.query(sqlDetail, [id]);
 
@@ -856,8 +856,6 @@ const barterController = {
 
       const { gambar_profile, gambar_id, user_id } = req.query;
 
-      console.log("ini edit profile", req.query)
-
       const sqlEditImg = "UPDATE pengguna SET gambar_profile = ?, gambar_id = ? WHERE user_id = ?";
 
       const [response] = await connection.query(sqlEditImg, [gambar_profile, gambar_id, user_id]);
@@ -890,19 +888,85 @@ const barterController = {
           return res.status(400).json({
             statusCode: 400,
             message: "Failed to delete image",
-          })
+          });
         }
 
         res.status(200).json({
           statusCode: 200,
           message: "Success delete image",
-          data: result
-        })
+          data: result,
+        });
       });
     } catch (error) {
-      res.json({
+      res.status(500).json({
+        statusCode: 500,
         message: "Image delete failed",
       });
+    }
+  },
+
+  editDataProfile: async (req, res) => {
+    const connection = await pool.getConnection();
+    try {
+      await connection.beginTransaction();
+
+      const { nama_lengkap, nomor_telepon, password, user_id } = req.body;
+
+      const sqlCheckName = "SELECT nama_lengkap FROM pengguna WHERE nama_lengkap = ?";
+
+      const sqlEditProfileNama = "UPDATE pengguna SET nama_lengkap = ? WHERE user_id = ?";
+      const sqlEditProfileNomor = "UPDATE pengguna SET nomor_telepon = ? WHERE user_id = ?";
+      const sqlEditProfilePassword = "UPDATE pengguna SET password = ? WHERE user_id = ?";
+
+      if (nama_lengkap && !nomor_telepon && !password) {
+        const [responseCheck] = await connection.query(sqlCheckName, [nama_lengkap]);
+
+        if (responseCheck.length > 0) {
+          return res.status(400).json({
+            statusCode: 400,
+            message: "Name has been used",
+          });
+        }
+
+        const [response] = await connection.query(sqlEditProfileNama, [nama_lengkap, user_id]);
+
+        if (response.affectedRows === 1) {
+          res.status(200).json({
+            statusCode: 200,
+            message: "Success edit name",
+          });
+        }
+      } else if (nomor_telepon && !nama_lengkap && !password) {
+        const [response] = await connection.query(sqlEditProfileNomor, [nomor_telepon, user_id]);
+
+        if (response) {
+          res.status(200).json({
+            statusCode: 200,
+            message: "Success edit telephone number",
+          });
+        }
+      } else if (password && !nomor_telepon && !nama_lengkap) {
+        const hashedPassword = await bcrypt.hash(password, 12);
+
+        const [response] = await connection.query(sqlEditProfilePassword, [hashedPassword, user_id]);
+
+        if (response) {
+          res.status(200).json({
+            statusCode: 200,
+            message: "Success edit password",
+          });
+        }
+      }
+
+      await connection.commit();
+    } catch (error) {
+      await connection.rollback();
+      res.status(500).json({
+        statusCode: 500,
+        message: "Error edit profile, internal server error",
+      });
+    } finally {
+      connection.release();
     }
   },
 };

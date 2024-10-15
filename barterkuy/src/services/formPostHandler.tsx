@@ -2,7 +2,7 @@ import { api } from "./axiosConfig";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { update } from "@/redux/userSlice";
-import { signUpHandler, LoginHandler, formPengajuanHandler } from "@/hooks/useForm";
+import { signUpHandler, LoginHandler, formPengajuanHandler, editProfileNameHandler, editProfileTelephoneHandler } from "@/hooks/useForm";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import { useMutation } from "@tanstack/react-query";
@@ -300,34 +300,132 @@ export const handlePostPengajuan = () => {
           "Content-Type": "application/json",
         },
       });
-
-      if (response) {
-        console.log(response);
-      }
     }
   });
 
   return { control, handlePostForm, formPengajuan };
 };
 
-export const handleEditImgProfile = async (gambar_profile: string, oldImgId: string, newImgId: string, user_id: string ) => {
-  const response = await api.post("/delete/img", {}, {
-    params: {
-      fileId: oldImgId
+export const handleEditImgProfile = async (gambar_profile: string, oldImgId: string, newImgId: string, user_id: string) => {
+  const response = await api.post(
+    "/delete/img",
+    {},
+    {
+      params: {
+        fileId: oldImgId,
+      },
     }
-  })
+  );
 
   if (response.data.statusCode === 200) {
-    await api.post("/update/profile/img", {}, {
-      params: {
-        gambar_profile: gambar_profile,
-        gambar_id: newImgId,
-        user_id: user_id
+    await api.post(
+      "/update/profile/img",
+      {},
+      {
+        params: {
+          gambar_profile: gambar_profile,
+          gambar_id: newImgId,
+          user_id: user_id,
+        },
       }
-    })
+    );
 
-    return true
+    return true;
   } else if (response.data.statusCode === 400) {
-    return false
+    return false;
   }
+};
+
+export const handleEditNameProfile = (onClose: () => void) => {
+  const { handleSubmit, control, formEditName } = editProfileNameHandler();
+
+  const queryClient = useQueryClient();
+
+  const MySwal = withReactContent(Swal);
+
+  const formData: FormData = new FormData();
+
+  const handlePostEditName = handleSubmit(async (value) => {
+    const user = String(value.user);
+
+    formData.append("nama_lengkap", value.nama_lengkap);
+    formData.append("user_id", user);
+    formData.append("nomor_telepon", "");
+    formData.append("password", "");
+
+    try {
+      const response = await api.post("/edit/profile", formData);
+
+      if (response.status === 200) {
+        MySwal.fire({
+          title: "Berhasil",
+          text: "Nama anda berhasil diubah",
+          icon: "success",
+          confirmButtonText: "OK",
+        }).then((response) => {
+          if (response.isConfirmed) {
+            queryClient.invalidateQueries({ queryKey: ["profile", user] });
+
+            onClose();
+          }
+        });
+      }
+    } catch (error) {
+      MySwal.fire({
+        title: "Gagal",
+        text: "Nama sudah terpakai, harap pilih nama lain",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+    }
+  });
+
+  return { control, formEditName, handlePostEditName };
+};
+
+export const handleEditTelephoneProfile = (onClose: () => void) => {
+  const { handleSubmit, control, formEditTelephone } = editProfileTelephoneHandler();
+
+  const queryClient = useQueryClient();
+
+  const MySwal = withReactContent(Swal);
+
+  const formData: FormData = new FormData();
+
+  const handlePostEditTelephone = handleSubmit(async (value) => {
+    const user = String(value.user);
+
+    formData.append("nama_lengkap", "");
+    formData.append("user_id", user);
+    formData.append("nomor_telepon", value.nomor_telepon);
+    formData.append("password", "");
+
+    try {
+      const response = await api.post("/edit/profile", formData);
+
+      if (response.status === 200) {
+        MySwal.fire({
+          title: "Berhasil",
+          text: "Nomor telepon anda berhasil diubah",
+          icon: "success",
+          confirmButtonText: "OK",
+        }).then((response) => {
+          if (response.isConfirmed) {
+            queryClient.invalidateQueries({ queryKey: ["profile", user] });
+
+            onClose();
+          }
+        });
+      }
+    } catch (error) {
+      MySwal.fire({
+        title: "Gagal",
+        text: "Gagal mengganti nomor telepon, coba lagi nanti",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+    }
+  });
+
+  return { control, formEditTelephone, handlePostEditTelephone };
 };
