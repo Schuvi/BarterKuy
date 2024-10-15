@@ -429,3 +429,29 @@ export const handleEditTelephoneProfile = (onClose: () => void) => {
 
   return { control, formEditTelephone, handlePostEditTelephone };
 };
+
+export const logout = () => {
+  const navigate = useNavigate()
+
+  return useMutation({
+    mutationFn: async () => {
+      const response = await api.post(
+        "/logout",
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${window.localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      return response.data;
+    },
+    onSuccess: (data) => {
+      if (data.message === "Logout succesful") {
+        window.localStorage.removeItem("token");
+        navigate("/login");
+      }
+    },
+  });
+}
