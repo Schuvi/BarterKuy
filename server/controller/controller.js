@@ -969,6 +969,33 @@ const barterController = {
       connection.release();
     }
   },
+
+  editProfileLocation: async (req, res) => {
+    const connection = await pool.getConnection()
+
+    try {
+      const {provinsi, kota, kecamatan, user_id} = req.body
+
+      const sqlEditLocation = "UPDATE lokasi SET provinsi = ?, kota = ?, kecamatan = ? WHERE user_id = ?"
+
+      const [response] = await connection.query(sqlEditLocation, [provinsi, kota, kecamatan, user_id])
+
+      if (response.affectedRows > 0) {
+        res.status(200).json({
+          statusCode: 200,
+          message: "Success edit location",
+        })
+      }
+    } catch (error) {
+      await connection.rollback()
+      res.status(500).json({
+        statusCode: 500,
+        message: "Error edit location, internal server error",
+      })
+    } finally {
+      connection.release()
+    }
+  },
 };
 
 module.exports = barterController;

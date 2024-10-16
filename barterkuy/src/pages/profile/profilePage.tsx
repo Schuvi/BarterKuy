@@ -11,52 +11,52 @@ import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 
 function ProfilePage() {
-    const {user_id} = useParams()
+  const { user_id } = useParams();
 
-    const MySwal = withReactContent(Swal)
+  const MySwal = withReactContent(Swal);
 
-    const signOut = logout()
+  const signOut = logout();
 
-    const logoutFn = () => {
-      MySwal.fire({
-        title: 'Konfirmasi',
-        text: "Apakah kamu yakin ingin logout?",
-        icon: 'warning',
-        confirmButtonText: "Ya, saya ingin logout",
-        showDenyButton: true,
-        denyButtonText: "Tidak!"
-      }).then((response) => {
-        if (response.isConfirmed) {
-          signOut.mutate()
-        }
-      })
-    }
+  const logoutFn = () => {
+    MySwal.fire({
+      title: "Konfirmasi",
+      text: "Apakah kamu yakin ingin logout?",
+      icon: "warning",
+      confirmButtonText: "Ya, saya ingin logout",
+      showDenyButton: true,
+      denyButtonText: "Tidak!",
+    }).then((response) => {
+      if (response.isConfirmed) {
+        signOut.mutate();
+      }
+    });
+  };
 
-    const email_user = useSelector((state: RootState) => state.user.email)
+  const email_user = useSelector((state: RootState) => state.user.email);
 
-    const { data: profile, isLoading: loadingProfile, isError: errorProfile } = fetchProfileUser(user_id as string)
+  const { data: profile, isLoading: loadingProfile, isError: errorProfile } = fetchProfileUser(user_id as string);
 
-    const profileData = profile?.data || [];
+  const profileData = profile?.data || [];
 
-    const DataProfile = profileData.find((item: dataProfile) => item.email === email_user)
+  const DataProfile = profileData.find((item: dataProfile) => item.email === email_user);
 
-    if (errorProfile) {
-        return <div>error</div>;
-    }
+  if (errorProfile) {
+    return <div>error</div>;
+  }
 
   return (
     <>
-        <section>
-            <ProfilePicture gambar_profile={DataProfile?.gambar_profile} user_id={user_id} gambar_id={DataProfile?.gambar_id} isLoading={loadingProfile}/>
+      <section>
+        <ProfilePicture gambar_profile={DataProfile?.gambar_profile} user_id={user_id} gambar_id={DataProfile?.gambar_id} isLoading={loadingProfile} />
 
-            <ProfileDetail dataProfile={DataProfile} loadingData={loadingProfile}/>
+        <ProfileDetail dataProfile={DataProfile} loadingData={loadingProfile} />
 
-            <div className="container text-center mt-4">
-              <Button type="button" className="bg-red-700" onClick={logoutFn}>
-                Logout
-              </Button>
-            </div>
-        </section>
+        <div className="container text-center mt-4">
+          <Button type="button" className="bg-red-700" onClick={logoutFn}>
+            Logout
+          </Button>
+        </div>
+      </section>
     </>
   );
 }

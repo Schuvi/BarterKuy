@@ -66,3 +66,25 @@ export interface dataProfile extends dataImgProfile {
   kota: string;
   kecamatan: string;
 }
+
+export type editState = {
+  nama: boolean;
+  telephone: boolean;
+  location: boolean;
+};
+
+export type stateKota = {
+  provId: string;
+  trigger: boolean;
+  kotName: string;
+};
+
+export type stateKec = {
+  kotId: string;
+  trigger: boolean;
+  kecName: string;
+};
+
+export type stateProv = {
+  provName: string;
+}

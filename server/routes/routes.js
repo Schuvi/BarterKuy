@@ -27,6 +27,7 @@ router.post("/post/barang", barterController.pengajuanBarang);
 router.post("/update/profile/img", barterController.editProfileImg);
 router.post("/delete/img", barterController.deleteImageKit);
 router.post("/edit/profile", barterController.editDataProfile);
+router.post("/edit/profile/location", barterController.editProfileLocation);
 router.get("/search", barterController.searchBarang);
 router.get("/posts", barterController.postinganBarang);
 router.get("/kabupaten", barterController.fetchKabupaten);

@@ -189,3 +189,27 @@ export const editProfileTelephoneHandler = () => {
 
   return { formEditTelephone, handleSubmit, control };
 };
+
+const editProfileLocationScheme = z.object({
+  user: z.number().min(1, "User ID harus diisi"),
+  provinsi: z.string().min(1, "Pilih minimal 1 provinsi"),
+  kota: z.string().min(1, "Pilih minimal 1 kota"),
+  kecamatan: z.string().min(1, "Pilih minimal 1 kecamatan"),
+})
+
+type editProfileLocationType = z.infer<typeof editProfileLocationScheme>
+
+export const editProfileLocationHandler = () => {
+  const user_id = useSelector((state: RootState) => state.user.user_id)
+
+  const formEditLocation = useForm<editProfileLocationType>({
+    resolver: zodResolver(editProfileLocationScheme),
+    defaultValues: {
+      user: user_id
+    }
+  })
+
+  const {handleSubmit, control} = formEditLocation
+
+  return {handleSubmit, control, formEditLocation}
+}

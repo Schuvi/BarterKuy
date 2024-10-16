@@ -2,7 +2,7 @@ import { api } from "./axiosConfig";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { update } from "@/redux/userSlice";
-import { signUpHandler, LoginHandler, formPengajuanHandler, editProfileNameHandler, editProfileTelephoneHandler } from "@/hooks/useForm";
+import { signUpHandler, LoginHandler, formPengajuanHandler, editProfileNameHandler, editProfileTelephoneHandler, editProfileLocationHandler } from "@/hooks/useForm";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import { useMutation } from "@tanstack/react-query";
@@ -30,23 +30,33 @@ export const signPostHandler = () => {
     formData.append("kota", values.kota);
     formData.append("kecamatan", values.kecamatan);
 
-    const response = await api.post(import.meta.env.VITE_API_ENDPOINT + "/register", formData, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    const emailRes = values.email;
-
-    if (response.data.message === "User creation success") {
-      MySwal.fire({
-        title: "Berhasil",
-        text: "Akun berhasil dibuat",
-        icon: "success",
-        confirmButtonText: "OK",
+    try {
+      const response = await api.post(import.meta.env.VITE_API_ENDPOINT + "/register", formData, {
+        headers: {
+          "Content-Type": "application/json",
+        },
       });
-      dispatch(update({ email: emailRes }));
-      navigate("/otpVerification");
+
+      const emailRes = values.email;
+
+      if (response.data.message === "User creation success") {
+        MySwal.fire({
+          title: "Berhasil",
+          text: "Akun berhasil dibuat",
+          icon: "success",
+          confirmButtonText: "OK",
+        });
+        dispatch(update({ email: emailRes }));
+        navigate("otp_verification");
+      }
+    } catch (error) {
+      if (error) {
+        MySwal.fire({
+          title: "Gagal",
+          text: "Nama / Email Telah Digunakan",
+          icon: "error",
+        });
+      }
     }
   });
 
@@ -430,8 +440,56 @@ export const handleEditTelephoneProfile = (onClose: () => void) => {
   return { control, formEditTelephone, handlePostEditTelephone };
 };
 
+export const handleEditLocationProfile = (onClose: () => void) => {
+  const { control, formEditLocation, handleSubmit } = editProfileLocationHandler();
+
+  const MySwal = withReactContent(Swal);
+
+  const queryClient = useQueryClient();
+
+  const handlePostEditLocation = handleSubmit(async (value) => {
+    const user = String(value.user);
+
+    const formData: FormData = new FormData();
+    formData.append("user_id", user);
+    formData.append("provinsi", value.provinsi);
+    formData.append("kota", value.kota);
+    formData.append("kecamatan", value.kecamatan);
+
+    try {
+      const response = await api.post("/edit/profile/location", formData, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.status == 200) {
+        MySwal.fire({
+          title: "Berhasil",
+          text: "Lokasi anda berhasil diubah",
+          icon: "success",
+          confirmButtonText: "OK",
+        }).then(async (response) => {
+          if (response.isConfirmed) {
+            await queryClient.invalidateQueries({ queryKey: ["profile", user] });
+            onClose();
+          }
+        });
+      }
+    } catch (error) {
+      MySwal.fire({
+        title: "Gagal",
+        text: `Gagal mengubah lokasi, coba lagi nanti ${error}`,
+        icon: "error",
+      });
+    }
+  });
+
+  return { control, handlePostEditLocation, formEditLocation };
+};
+
 export const logout = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   return useMutation({
     mutationFn: async () => {
@@ -454,4 +512,4 @@ export const logout = () => {
       }
     },
   });
-}
+};

@@ -1,5 +1,3 @@
-import { useMutation } from "@tanstack/react-query";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import locationImg from "../../assets/location_filled_500px.png";
 import { usePosts } from "@/hooks/fetchHooks";
