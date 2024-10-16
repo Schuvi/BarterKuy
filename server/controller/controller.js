@@ -910,7 +910,7 @@ const barterController = {
     try {
       await connection.beginTransaction();
 
-      const { nama_lengkap, nomor_telepon, password, user_id } = req.body;
+      const { nama_lengkap, nomor_telepon, password, user_id, old_password } = req.body;
 
       const sqlCheckName = "SELECT nama_lengkap FROM pengguna WHERE nama_lengkap = ?";
 
@@ -918,7 +918,7 @@ const barterController = {
       const sqlEditProfileNomor = "UPDATE pengguna SET nomor_telepon = ? WHERE user_id = ?";
       const sqlEditProfilePassword = "UPDATE pengguna SET password = ? WHERE user_id = ?";
 
-      if (nama_lengkap && !nomor_telepon && !password) {
+      if (nama_lengkap && !nomor_telepon && !password && !old_password) {
         const [responseCheck] = await connection.query(sqlCheckName, [nama_lengkap]);
 
         if (responseCheck.length > 0) {
@@ -936,7 +936,7 @@ const barterController = {
             message: "Success edit name",
           });
         }
-      } else if (nomor_telepon && !nama_lengkap && !password) {
+      } else if (nomor_telepon && !nama_lengkap && !password && old_password) {
         const [response] = await connection.query(sqlEditProfileNomor, [nomor_telepon, user_id]);
 
         if (response) {
@@ -945,19 +945,37 @@ const barterController = {
             message: "Success edit telephone number",
           });
         }
-      } else if (password && !nomor_telepon && !nama_lengkap) {
-        const hashedPassword = await bcrypt.hash(password, 12);
+      } else if (password && old_password && !nomor_telepon && !nama_lengkap) {
+        const sqlCheckPass = "SELECT password FROM pengguna WHERE user_id = ?";
 
-        const [response] = await connection.query(sqlEditProfilePassword, [hashedPassword, user_id]);
+        const [response] = await connection.query(sqlCheckPass, [user_id]);
 
         if (response) {
-          res.status(200).json({
-            statusCode: 200,
-            message: "Success edit password",
-          });
+          const oldPass = response[0];
+
+          const [compare, hashedPassword] = await Promise.all([
+            bcrypt.compare(old_password, oldPass.password),
+            bcrypt.hash(password, 12)
+          ])
+
+          if (!compare) {
+            return res.status(400).json({
+              statusCode: 400,
+              message: "Password is incorrect",
+            });
+          } else {
+
+            const [responsePost] = await connection.query(sqlEditProfilePassword, [hashedPassword, user_id]);
+
+            if (responsePost) {
+              res.status(200).json({
+                statusCode: 200,
+                message: "Success edit password",
+              });
+            }
+          }
         }
       }
-
       await connection.commit();
     } catch (error) {
       await connection.rollback();
@@ -971,29 +989,29 @@ const barterController = {
   },
 
   editProfileLocation: async (req, res) => {
-    const connection = await pool.getConnection()
+    const connection = await pool.getConnection();
 
     try {
-      const {provinsi, kota, kecamatan, user_id} = req.body
+      const { provinsi, kota, kecamatan, user_id } = req.body;
 
-      const sqlEditLocation = "UPDATE lokasi SET provinsi = ?, kota = ?, kecamatan = ? WHERE user_id = ?"
+      const sqlEditLocation = "UPDATE lokasi SET provinsi = ?, kota = ?, kecamatan = ? WHERE user_id = ?";
 
-      const [response] = await connection.query(sqlEditLocation, [provinsi, kota, kecamatan, user_id])
+      const [response] = await connection.query(sqlEditLocation, [provinsi, kota, kecamatan, user_id]);
 
       if (response.affectedRows > 0) {
         res.status(200).json({
           statusCode: 200,
           message: "Success edit location",
-        })
+        });
       }
     } catch (error) {
-      await connection.rollback()
+      await connection.rollback();
       res.status(500).json({
         statusCode: 500,
         message: "Error edit location, internal server error",
-      })
+      });
     } finally {
-      connection.release()
+      connection.release();
     }
   },
 };
