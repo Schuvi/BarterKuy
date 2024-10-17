@@ -2,12 +2,13 @@ import { api } from "./axiosConfig";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { update } from "@/redux/userSlice";
-import { signUpHandler, LoginHandler, formPengajuanHandler, editProfileNameHandler, editProfileTelephoneHandler, editProfileLocationHandler } from "@/hooks/useForm";
+import { signUpHandler, LoginHandler, formPengajuanHandler, editProfileNameHandler, editProfileTelephoneHandler, editProfileLocationHandler, changePasswordHandler } from "@/hooks/useForm";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import { useMutation } from "@tanstack/react-query";
 import { OtpHandler } from "@/hooks/useForm";
 import { useQueryClient } from "@tanstack/react-query";
+import axios, { AxiosError } from "axios";
 
 // Sign Up Post Handler
 export const signPostHandler = () => {
@@ -486,6 +487,62 @@ export const handleEditLocationProfile = (onClose: () => void) => {
   });
 
   return { control, handlePostEditLocation, formEditLocation };
+};
+
+export const handlePostChangePassword = (onClose: () => void) => {
+  const MySwal = withReactContent(Swal);
+
+  const { control, handleSubmit, formPassword } = changePasswordHandler();
+
+  const handleChangePassword = handleSubmit(async (value) => {
+    const user = String(value.user);
+
+    const formData: FormData = new FormData();
+
+    formData.append("nama_lengkap", "");
+    formData.append("nomor_telepon", "");
+    formData.append("password", value.password);
+    formData.append("old_password", value.old_password);
+    formData.append("user_id", user);
+
+    try {
+      const response = await api.post("/edit/profile", formData);
+
+      if (response.status == 200) {
+        MySwal.fire({
+          title: "Berhasil",
+          text: "Berhasil mengubah password",
+          icon: "success",
+          confirmButtonText: "OK",
+        }).then((response) => {
+          if (response.isConfirmed) {
+            onClose();
+          }
+        });
+      }
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        const errorStatus = error.response?.status;
+        const errorMessage = error.response?.data.message
+
+        if (errorMessage === "Password is incorrect") {
+          MySwal.fire({
+            title: "Gagal",
+            text: "Password lama tidak sesuai",
+            icon: "error",
+          });
+        } else if (errorStatus == 500) {
+          MySwal.fire({
+            title: "Gagal",
+            text: "Terjadi kesalahan pada server",
+            icon: "error",
+          });
+        }
+      }
+    }
+  });
+
+  return { control, formPassword, handleChangePassword };
 };
 
 export const logout = () => {

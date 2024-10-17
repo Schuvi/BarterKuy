@@ -71,6 +71,7 @@ export type editState = {
   nama: boolean;
   telephone: boolean;
   location: boolean;
+  password: boolean;
 };
 
 export type stateKota = {

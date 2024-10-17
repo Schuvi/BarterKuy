@@ -5,12 +5,18 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import { useEffect } from "react";
 
-// SingnUp Form Handler
+// SignUp Form Handler
 const signFormScheme = z
   .object({
     email: z.string().email("Email tidak valid"),
     nama_lengkap: z.string().min(3, "Tulis nama lengkap anda"),
-    password: z.string().min(8, "Password minimal 8 karakter"),
+    password: z
+      .string()
+      .min(8, "Password minimal 8 karakter")
+      .regex(/[a-z]/, "Password harus mengandung huruf kecil")
+      .regex(/[0-9]/, "Password harus mengandung minimal 1 angka")
+      .regex(/[A-Z]/, "Password harus mengandung huruf besar")
+      .regex(/[\W_]/, "Password harus mengandung minimal 1 simbol"),
     password2: z.string().min(8, "password minimal 8 karakter"),
     nomor_telepon: z.string().min(11, "Nomor minimal 11 karakter"),
     role: z.string(),
@@ -19,7 +25,7 @@ const signFormScheme = z
     kecamatan: z.string().min(1, "Pilih minimal 1 kecamatan"),
   })
   .refine((data) => data.password === data.password2, {
-    message: "Password harus sama",
+    message: "Password tidak sesuai",
     path: ["password2"],
   });
 
@@ -153,13 +159,13 @@ const editProfileNameScheme = z.object({
 type profileNameScheme = z.infer<typeof editProfileNameScheme>;
 
 export const editProfileNameHandler = () => {
-  const user_id = useSelector((state: RootState) => state.user.user_id)
+  const user_id = useSelector((state: RootState) => state.user.user_id);
 
   const formEditName = useForm<profileNameScheme>({
     resolver: zodResolver(editProfileNameScheme),
     defaultValues: {
-      user: user_id
-    }
+      user: user_id,
+    },
   });
 
   const { handleSubmit, control } = formEditName;
@@ -176,13 +182,13 @@ const editProfileTelephoneScheme = z.object({
 type profileTelephoneScheme = z.infer<typeof editProfileTelephoneScheme>;
 
 export const editProfileTelephoneHandler = () => {
-  const user_id = useSelector((state: RootState) => state.user.user_id)
+  const user_id = useSelector((state: RootState) => state.user.user_id);
 
   const formEditTelephone = useForm<profileTelephoneScheme>({
     resolver: zodResolver(editProfileTelephoneScheme),
     defaultValues: {
-      user: user_id
-    }
+      user: user_id,
+    },
   });
 
   const { handleSubmit, control } = formEditTelephone;
@@ -190,26 +196,63 @@ export const editProfileTelephoneHandler = () => {
   return { formEditTelephone, handleSubmit, control };
 };
 
+// Edit Lokasi Profile
 const editProfileLocationScheme = z.object({
   user: z.number().min(1, "User ID harus diisi"),
   provinsi: z.string().min(1, "Pilih minimal 1 provinsi"),
   kota: z.string().min(1, "Pilih minimal 1 kota"),
   kecamatan: z.string().min(1, "Pilih minimal 1 kecamatan"),
-})
+});
 
-type editProfileLocationType = z.infer<typeof editProfileLocationScheme>
+type editProfileLocationType = z.infer<typeof editProfileLocationScheme>;
 
 export const editProfileLocationHandler = () => {
-  const user_id = useSelector((state: RootState) => state.user.user_id)
+  const user_id = useSelector((state: RootState) => state.user.user_id);
 
   const formEditLocation = useForm<editProfileLocationType>({
     resolver: zodResolver(editProfileLocationScheme),
     defaultValues: {
-      user: user_id
-    }
+      user: user_id,
+    },
+  });
+
+  const { handleSubmit, control } = formEditLocation;
+
+  return { handleSubmit, control, formEditLocation };
+};
+
+// Ganti Password
+const changePasswordScheme = z
+  .object({
+    old_password: z.string().min(8, "Password minimal 8 karakter"),
+    password: z
+      .string()
+      .min(8, "Password minimal 8 karakter")
+      .regex(/[a-z]/, "Password harus mengandung huruf kecil")
+      .regex(/[A-Z]/, "Password harus mengandung huruf besar")
+      .regex(/[0-9]/, "Password harus mengandung minimal 1 angka")
+      .regex(/[\W_]/, "Password harus mengandung minimal 1 simbol"),
+    confirm_password: z.string().min(8, "Password minimal 8 karakter"),
+    user: z.number().min(1, "User ID harus diisi"),
   })
+  .refine((data) => data.confirm_password === data.password, {
+    path: ["confirm_password"],
+    message: "Password tidak sesuai",
+  });
 
-  const {handleSubmit, control} = formEditLocation
+type changePasswordType = z.infer<typeof changePasswordScheme>;
 
-  return {handleSubmit, control, formEditLocation}
-}
+export const changePasswordHandler = () => {
+  const user_id = useSelector((state: RootState) => state.user.user_id);
+
+  const formPassword = useForm<changePasswordType>({
+    resolver: zodResolver(changePasswordScheme),
+    defaultValues: {
+      user: user_id,
+    },
+  });
+
+  const { control, handleSubmit } = formPassword;
+
+  return { control, handleSubmit, formPassword };
+};
