@@ -1,5 +1,3 @@
-import { useMutation } from "@tanstack/react-query";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import locationImg from "../../assets/location_filled_500px.png";
 import { usePosts } from "@/hooks/fetchHooks";
@@ -13,38 +11,11 @@ import { postsData } from "@/types/type";
 import { Card } from "@/components/ui/card";
 
 function HomePage() {
-  const accessToken = window.localStorage.getItem("token");
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState<boolean>(false);
   const location = useSelector((state: RootState) => state.user.kabupaten);
   const kategori = useSelector((state: RootState) => state.user.kategori);
   const { data: posts } = usePosts(location, kategori);
-
-  const logout = useMutation({
-    mutationFn: async () => {
-      const response = await axios.post(
-        import.meta.env.VITE_API_ENDPOINT + "/logout",
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${window.localStorage.getItem("token")}`,
-          },
-        }
-      );
-
-      return response.data;
-    },
-    onSuccess: (data) => {
-      if (data.message === "Logout succesful") {
-        window.localStorage.removeItem("token");
-        navigate("/login");
-      }
-    },
-  });
-
-  const handleLogout = () => {
-    logout.mutate();
-  };
 
   const handleDetail = (id: number) => {
     navigate(`/detail/${id}`);
@@ -101,10 +72,6 @@ function HomePage() {
       </div>
 
       {showModal && <LocationFilter onClose={() => setShowModal(!showModal)} />}
-
-      <button onClick={() => handleLogout()} hidden={accessToken === null ? true : false}>
-        logout
-      </button>
     </>
   );
 }

@@ -44,7 +44,7 @@ function SignUpForm() {
                   return (
                     <FormItem>
                       <FormControl>
-                        <Input {...field} className="p-3 rounded-2xl w-[45vw]" placeholder="Nama Lengkap" />
+                        <Input {...field} className="p-3 rounded-2xl w-[45vw]" placeholder="Nama Lengkap" value={field.value || ''}/>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -136,7 +136,6 @@ function SignUpForm() {
                   <Select
                     onValueChange={(value) => {
                       const kota = kot?.find((item: { id: string; text: string }) => item.text === value);
-                      console.log(kota);
                       if (kota) {
                         handleSelectionKec(kota.id);
                         field.onChange(kota.text);

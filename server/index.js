@@ -5,18 +5,26 @@ const dotenv = require("dotenv");
 const http = require("http");
 const socketIo = require("socket.io");
 const cookieParser = require("cookie-parser");
+const https = require('https');
+const fs = require('fs');
 
 dotenv.config();
+
+const options = {
+  key: fs.readFileSync('./localhost-key.pem'),
+  cert: fs.readFileSync('./localhost.pem')
+};
 
 const pool = require("./database/db");
 
 const app = express();
 
-const server = http.createServer(app);
 
 const barterRouter = require("./routes/routes");
 app.use(cors());
 app.use(cookieParser());
+
+const server = https.createServer(options, app);
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
@@ -69,6 +77,14 @@ io.on("connection", (socket) => {
 
 const PORT = process.env.PORT || 2020;
 
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`)
-})
+server.listen(PORT, async () => {
+  try {
+    const connection = await pool.getConnection();
+
+    if (connection) {
+      console.log(`Server is running on port ${PORT}`);
+    }
+  } catch (error) {
+    console.log("Database is off");
+  }
+});

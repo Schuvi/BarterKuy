@@ -24,6 +24,10 @@ router.post("/laporkan", barterController.laporkanPengguna);
 router.post("/delete/liked", barterController.deleteLikeBarang);
 router.post("/post/liked", barterController.likeBarang);
 router.post("/post/barang", barterController.pengajuanBarang);
+router.post("/update/profile/img", barterController.editProfileImg);
+router.post("/delete/img", barterController.deleteImageKit);
+router.post("/edit/profile", barterController.editDataProfile);
+router.post("/edit/profile/location", barterController.editProfileLocation);
 router.get("/search", barterController.searchBarang);
 router.get("/posts", barterController.postinganBarang);
 router.get("/kabupaten", barterController.fetchKabupaten);
@@ -31,5 +35,6 @@ router.get("/detail", barterController.detailBarang);
 router.get("/get/liked", barterController.getLikeBarang);
 router.get("/get/auth/imagekit", barterController.reqUploadGambar);
 router.get("/get/kategori", barterController.getKategori);
+router.get("/get/user", barterController.getUserProfile);
 
 module.exports = router;

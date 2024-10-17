@@ -167,7 +167,7 @@ const barterController = {
         'SELECT id, nama_barang, deskripsi_barang, barang.lokasi, jenis_penawaran, status_pengajuan, status_barter, kategori, pengguna.nama_lengkap, link_gambar from barang JOIN kategori_barang ON barang.kategori_barang=kategori_barang.kategori_id JOIN pengguna ON barang.user_id=pengguna.user_id JOIN gambar_barang ON gambar_barang.barang_id=barang.id WHERE status_pengajuan = "diterima" AND barang.lokasi = ?';
 
       const sqlKategori =
-        'SELECT id, nama_barang, deskripsi_barang, barang.lokasi, jenis_penawaran, status_pengajuan, status_barter, kategori, pengguna.nama_lengkap, link_gambar from barang JOIN kategori_barang ON barang.kategori_barang=kategori_barang.kategori_id JOIN pengguna ON barang.user_id=pengguna.user_id JOIN gambar_barang ON gambar_barang.barang_id=barang.id WHERE status_pengajuan = "diterima" AND barang.lokasi = ? AND  kategori_barang = ?';
+        'SELECT id, nama_barang, deskripsi_barang, barang.lokasi, jenis_penawaran, status_pengajuan, status_barter, kategori, pengguna.nama_lengkap, link_gambar from barang JOIN kategori_barang ON barang.kategori_barang=kategori_barang.kategori_id JOIN pengguna ON barang.user_id=pengguna.user_id JOIN gambar_barang ON gambar_barang.barang_id=barang.id WHERE status_pengajuan = "diterima" AND barang.lokasi = ? AND kategori_barang = ?';
 
       await connection.commit();
 
@@ -255,7 +255,7 @@ const barterController = {
       const { id } = req.query;
 
       const sqlDetail =
-        'SELECT id, nama_barang, deskripsi_barang, barang.lokasi, jenis_penawaran, status_pengajuan, status_barter, kategori, pengguna.user_id, pengguna.nama_lengkap, pengguna.gambar_profile, lokasi.kota, lokasi.kecamatan, link_gambar from barang JOIN kategori_barang ON barang.kategori_barang=kategori_barang.kategori_id JOIN pengguna ON barang.user_id=pengguna.user_id JOIN gambar_barang ON gambar_barang.barang_id=barang.id JOIN lokasi ON pengguna.lokasi=lokasi.id_lokasi WHERE status_pengajuan = "diterima" AND id = ?';
+        'SELECT id, nama_barang, deskripsi_barang, barang.lokasi, jenis_penawaran, status_pengajuan, status_barter, kategori, pengguna.user_id, pengguna.nama_lengkap, pengguna.gambar_profile, lokasi.kota, lokasi.kecamatan, link_gambar FROM barang JOIN kategori_barang ON barang.kategori_barang=kategori_barang.kategori_id JOIN pengguna ON barang.user_id=pengguna.user_id JOIN gambar_barang ON gambar_barang.barang_id=barang.id JOIN lokasi ON pengguna.lokasi=lokasi.id_lokasi WHERE status_pengajuan = "diterima" AND id = ?';
 
       const [response] = await connection.query(sqlDetail, [id]);
 
@@ -466,7 +466,7 @@ const barterController = {
 
       const sqlVerify = "SELECT email, otp FROM otp WHERE email = ?";
 
-      const sqlValidEmail = 'UPDATE pengguna set verifikasi = "valid" WHERE email = ?';
+      const sqlValidEmail = 'UPDATE pengguna SET verifikasi = "valid" WHERE email = ?';
 
       const sqlDeleteOtp = "DELETE FROM otp WHERE email = ?";
 
@@ -761,7 +761,7 @@ const barterController = {
       }
     } catch (error) {
       await connection.rollback();
-      console.error(error)
+      console.error(error);
       res.status(500).json({
         statusCode: 500,
         message: "Internal server error :",
@@ -805,6 +805,210 @@ const barterController = {
       res.status(500).json({
         statusCode: 500,
         message: "Internal server error :",
+      });
+    } finally {
+      connection.release();
+    }
+  },
+
+  getUserProfile: async (req, res) => {
+    const connection = await pool.getConnection();
+    try {
+      await connection.beginTransaction();
+
+      const { user_id } = req.query;
+
+      const sqlProfile =
+        "SELECT email, nama_lengkap, nomor_telepon, gambar_profile, gambar_id, role, lokasi.provinsi, lokasi.kota, lokasi.kecamatan FROM pengguna JOIN lokasi ON pengguna.lokasi = lokasi.id_lokasi WHERE pengguna.user_id = ?";
+
+      const [response] = await connection.query(sqlProfile, [user_id]);
+
+      await connection.commit();
+
+      if (response.length > 0) {
+        res.status(200).json({
+          statusCode: 200,
+          message: "Success retrieved user profile",
+          data: response,
+        });
+      } else {
+        res.status(404).json({
+          statusCode: 404,
+          message: "Not found",
+        });
+      }
+    } catch (error) {
+      await connection.rollback();
+      res.status(500).json({
+        statusCode: 500,
+        message: "Internal server error",
+      });
+    } finally {
+      connection.release();
+    }
+  },
+
+  editProfileImg: async (req, res) => {
+    const connection = await pool.getConnection();
+
+    try {
+      await connection.beginTransaction();
+
+      const { gambar_profile, gambar_id, user_id } = req.query;
+
+      const sqlEditImg = "UPDATE pengguna SET gambar_profile = ?, gambar_id = ? WHERE user_id = ?";
+
+      const [response] = await connection.query(sqlEditImg, [gambar_profile, gambar_id, user_id]);
+
+      if (response) {
+        res.status(201).json({
+          statusCode: 201,
+          message: "Success updated profile image",
+        });
+      }
+
+      await connection.commit();
+    } catch (error) {
+      await connection.rollback();
+      res.status(500).json({
+        statusCode: 500,
+        message: "Internal server error",
+      });
+    } finally {
+      connection.release();
+    }
+  },
+
+  deleteImageKit: async (req, res) => {
+    try {
+      const { fileId } = req.query;
+
+      imagekit.deleteFile(fileId, (err, result) => {
+        if (err) {
+          return res.status(400).json({
+            statusCode: 400,
+            message: "Failed to delete image",
+          });
+        }
+
+        res.status(200).json({
+          statusCode: 200,
+          message: "Success delete image",
+          data: result,
+        });
+      });
+    } catch (error) {
+      res.status(500).json({
+        statusCode: 500,
+        message: "Image delete failed",
+      });
+    }
+  },
+
+  editDataProfile: async (req, res) => {
+    const connection = await pool.getConnection();
+    try {
+      await connection.beginTransaction();
+
+      const { nama_lengkap, nomor_telepon, password, user_id, old_password } = req.body;
+
+      const sqlCheckName = "SELECT nama_lengkap FROM pengguna WHERE nama_lengkap = ?";
+
+      const sqlEditProfileNama = "UPDATE pengguna SET nama_lengkap = ? WHERE user_id = ?";
+      const sqlEditProfileNomor = "UPDATE pengguna SET nomor_telepon = ? WHERE user_id = ?";
+      const sqlEditProfilePassword = "UPDATE pengguna SET password = ? WHERE user_id = ?";
+
+      if (nama_lengkap && !nomor_telepon && !password && !old_password) {
+        const [responseCheck] = await connection.query(sqlCheckName, [nama_lengkap]);
+
+        if (responseCheck.length > 0) {
+          return res.status(400).json({
+            statusCode: 400,
+            message: "Name has been used",
+          });
+        }
+
+        const [response] = await connection.query(sqlEditProfileNama, [nama_lengkap, user_id]);
+
+        if (response.affectedRows === 1) {
+          res.status(200).json({
+            statusCode: 200,
+            message: "Success edit name",
+          });
+        }
+      } else if (nomor_telepon && !nama_lengkap && !password && old_password) {
+        const [response] = await connection.query(sqlEditProfileNomor, [nomor_telepon, user_id]);
+
+        if (response) {
+          res.status(200).json({
+            statusCode: 200,
+            message: "Success edit telephone number",
+          });
+        }
+      } else if (password && old_password && !nomor_telepon && !nama_lengkap) {
+        const sqlCheckPass = "SELECT password FROM pengguna WHERE user_id = ?";
+
+        const [response] = await connection.query(sqlCheckPass, [user_id]);
+
+        if (response) {
+          const oldPass = response[0];
+
+          const [compare, hashedPassword] = await Promise.all([
+            bcrypt.compare(old_password, oldPass.password),
+            bcrypt.hash(password, 12)
+          ])
+
+          if (!compare) {
+            return res.status(400).json({
+              statusCode: 400,
+              message: "Password is incorrect",
+            });
+          } else {
+
+            const [responsePost] = await connection.query(sqlEditProfilePassword, [hashedPassword, user_id]);
+
+            if (responsePost) {
+              res.status(200).json({
+                statusCode: 200,
+                message: "Success edit password",
+              });
+            }
+          }
+        }
+      }
+      await connection.commit();
+    } catch (error) {
+      await connection.rollback();
+      res.status(500).json({
+        statusCode: 500,
+        message: "Error edit profile, internal server error",
+      });
+    } finally {
+      connection.release();
+    }
+  },
+
+  editProfileLocation: async (req, res) => {
+    const connection = await pool.getConnection();
+
+    try {
+      const { provinsi, kota, kecamatan, user_id } = req.body;
+
+      const sqlEditLocation = "UPDATE lokasi SET provinsi = ?, kota = ?, kecamatan = ? WHERE user_id = ?";
+
+      const [response] = await connection.query(sqlEditLocation, [provinsi, kota, kecamatan, user_id]);
+
+      if (response.affectedRows > 0) {
+        res.status(200).json({
+          statusCode: 200,
+          message: "Success edit location",
+        });
+      }
+    } catch (error) {
+      await connection.rollback();
+      res.status(500).json({
+        statusCode: 500,
+        message: "Error edit location, internal server error",
       });
     } finally {
       connection.release();

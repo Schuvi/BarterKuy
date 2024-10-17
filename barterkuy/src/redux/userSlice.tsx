@@ -3,7 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 export const userSlice = createSlice({
   name: "user",
   initialState: {
-    email: "",
+    email: "satra.shufi46@smk.belajar.id",
     pending: false,
     user_id: 9,
     nama: "Satra Shufi Aliyu",
