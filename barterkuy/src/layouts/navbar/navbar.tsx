@@ -7,7 +7,7 @@ import userImg from "../../assets/user_96px.png";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { update } from "@/redux/userSlice";
-import { RootState } from "@/redux/store";
+import { RootStatePersist } from "@/redux/redux-persist/store-persist";
 
 function Navbar() {
   const navigate = useNavigate();
@@ -16,9 +16,9 @@ function Navbar() {
 
   const dispatch = useDispatch();
 
-  const kategoriNow = useSelector((state: RootState) => state.user.kategori);
+  const kategoriNow = useSelector((state: RootStatePersist) => state.user.kategori);
 
-  const user_id = useSelector((state: RootState) => state.user.user_id);
+  const user_id = useSelector((state: RootStatePersist) => state.user.user_id);
 
   const handleKategori = (kategori: string) => {
     if (kategoriNow !== kategori) {

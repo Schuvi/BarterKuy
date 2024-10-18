@@ -2,7 +2,7 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSelector } from "react-redux";
-import { RootState } from "@/redux/store";
+import { RootStatePersist } from "@/redux/redux-persist/store-persist";
 import { useEffect } from "react";
 
 // SignUp Form Handler
@@ -116,13 +116,13 @@ const formPengajuanScheme = z.object({
 type FormPengajuanScheme = z.infer<typeof formPengajuanScheme>;
 
 export const formPengajuanHandler = () => {
-  const user_id = useSelector((state: RootState) => state.user.user_id);
+  const user_id = useSelector((state: RootStatePersist) => state.user.user_id);
 
-  const fileImg = useSelector((state: RootState) => state.user.fileUpload);
+  const fileImg = useSelector((state: RootStatePersist) => state.user.fileUpload);
 
-  const location = useSelector((state: RootState) => state.user.kabupaten);
+  const location = useSelector((state: RootStatePersist) => state.user.kabupaten);
 
-  const isDisabled = useSelector((state: RootState) => state.user.disabledLoc);
+  const isDisabled = useSelector((state: RootStatePersist) => state.user.disabledLoc);
 
   const formPengajuan = useForm<FormPengajuanScheme>({
     resolver: zodResolver(formPengajuanScheme),
@@ -159,7 +159,7 @@ const editProfileNameScheme = z.object({
 type profileNameScheme = z.infer<typeof editProfileNameScheme>;
 
 export const editProfileNameHandler = () => {
-  const user_id = useSelector((state: RootState) => state.user.user_id);
+  const user_id = useSelector((state: RootStatePersist) => state.user.user_id);
 
   const formEditName = useForm<profileNameScheme>({
     resolver: zodResolver(editProfileNameScheme),
@@ -182,7 +182,7 @@ const editProfileTelephoneScheme = z.object({
 type profileTelephoneScheme = z.infer<typeof editProfileTelephoneScheme>;
 
 export const editProfileTelephoneHandler = () => {
-  const user_id = useSelector((state: RootState) => state.user.user_id);
+  const user_id = useSelector((state: RootStatePersist) => state.user.user_id);
 
   const formEditTelephone = useForm<profileTelephoneScheme>({
     resolver: zodResolver(editProfileTelephoneScheme),
@@ -207,7 +207,7 @@ const editProfileLocationScheme = z.object({
 type editProfileLocationType = z.infer<typeof editProfileLocationScheme>;
 
 export const editProfileLocationHandler = () => {
-  const user_id = useSelector((state: RootState) => state.user.user_id);
+  const user_id = useSelector((state: RootStatePersist) => state.user.user_id);
 
   const formEditLocation = useForm<editProfileLocationType>({
     resolver: zodResolver(editProfileLocationScheme),
@@ -243,7 +243,7 @@ const changePasswordScheme = z
 type changePasswordType = z.infer<typeof changePasswordScheme>;
 
 export const changePasswordHandler = () => {
-  const user_id = useSelector((state: RootState) => state.user.user_id);
+  const user_id = useSelector((state: RootStatePersist) => state.user.user_id);
 
   const formPassword = useForm<changePasswordType>({
     resolver: zodResolver(changePasswordScheme),

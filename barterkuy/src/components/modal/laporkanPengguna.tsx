@@ -1,5 +1,5 @@
 import { useSelector } from "react-redux";
-import { RootState } from "@/redux/store";
+import { RootStatePersist } from "@/redux/redux-persist/store-persist";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { z } from "zod";
@@ -28,7 +28,7 @@ interface laporanPenggunaProps {
 }
 
 function LaporPengguna({ onClose, id }: laporanPenggunaProps) {
-  const user = useSelector((state: RootState) => state.user.user_id);
+  const user = useSelector((state: RootStatePersist) => state.user.user_id);
 
   const MySwal = withReactContent(Swal);
 

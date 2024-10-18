@@ -1,6 +1,6 @@
 import { fetchLikedThings } from "@/hooks/fetchHooks";
 import { useSelector, useDispatch } from "react-redux";
-import { RootState } from "@/redux/store";
+import { RootStatePersist } from "@/redux/redux-persist/store-persist";
 import { likeData } from "@/types/type";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { IKImage } from "imagekitio-react";
@@ -11,7 +11,7 @@ import { update } from "@/redux/userSlice";
 import { Skeleton } from "@/components/ui/skeleton";
 
 function LikeBarang() {
-  const user_id = useSelector((state: RootState) => state.user.user_id);
+  const user_id = useSelector((state: RootStatePersist) => state.user.user_id);
 
   const navigate = useNavigate()
 

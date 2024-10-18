@@ -1,5 +1,4 @@
 import { useSelector } from "react-redux";
-import { RootState } from "@/redux/store";
 import { fetchSearchThings } from "@/hooks/fetchHooks";
 import { detailData } from "@/types/type";
 import { useSearchParams } from "react-router-dom";
@@ -9,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import withReactContent from "sweetalert2-react-content";
 import Swal from "sweetalert2";
+import { RootStatePersist } from "@/redux/redux-persist/store-persist";
 
 function SearchResult() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -20,7 +20,7 @@ function SearchResult() {
   const nama_barang = searchParams.get("nama_barang");
 
   const lokasiSearch = searchParams.get("lokasi");
-  const triggerSearch = useSelector((state: RootState) => state.things.triggerSearch);
+  const triggerSearch = useSelector((state: RootStatePersist) => state.things.triggerSearch);
 
   const { data: searchValue, isError: error, isLoading: loading } = fetchSearchThings(nama_barang as string, triggerSearch as boolean, lokasiSearch as string);
 

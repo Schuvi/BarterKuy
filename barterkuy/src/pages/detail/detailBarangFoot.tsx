@@ -3,7 +3,7 @@ import likeLogo from "../../assets/heart-regular (1).svg";
 import likeFilled from "../../assets/heart-solid (1).svg";
 import share from "../../assets/share_500px.png";
 import { useSelector } from "react-redux";
-import { RootState } from "@/redux/store";
+import { RootStatePersist } from "@/redux/redux-persist/store-persist";
 import { likeBarang } from "@/services/formPostHandler";
 import { useEffect, useState } from "react";
 import { likeData } from "@/types/type";
@@ -14,7 +14,7 @@ import { useParams } from "react-router-dom";
 function DetailBarangFoot({ like }: { like: likeData[] }) {
   const {id} = useParams()
 
-  const id_user = useSelector((state: RootState) => state.user.user_id);
+  const id_user = useSelector((state: RootStatePersist) => state.user.user_id);
 
   const [isLikedButton, setIsLikedButton] = useState<boolean>(false);
 

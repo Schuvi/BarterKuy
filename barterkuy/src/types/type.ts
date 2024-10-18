@@ -88,4 +88,26 @@ export type stateKec = {
 
 export type stateProv = {
   provName: string;
+};
+
+export interface statePersist {
+  email: string;
+  user_id: number;
+  nama: string;
+  provinsi: string;
+  kabupaten: string;
+  kecamatan: string;
+}
+
+export interface UserState {
+  email: string;
+  pending: boolean;
+  user_id: number;
+  nama: string;
+  provinsi: string;
+  kabupaten: string;
+  kecamatan: string;
+  kategori: string;
+  disabledLoc: boolean;
+  fileUpload: any[];
 }

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
 import { update } from "@/redux/userSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "@/redux/store";
+import { RootStatePersist } from "@/redux/redux-persist/store-persist";
 import { fetchKabupaten } from "@/hooks/fetchHooks";
 
 interface LocationFilterProps {
@@ -21,8 +21,8 @@ const locationFilter = z.object({
 type filterLocationType = z.infer<typeof locationFilter>;
 
 function LocationFilter({ onClose }: LocationFilterProps) {
-  const location = useSelector((state: RootState) => state.user.kabupaten);
-  const provinsi = useSelector((state: RootState) => state.user.provinsi);
+  const location = useSelector((state: RootStatePersist) => state.user.kabupaten);
+  const provinsi = useSelector((state: RootStatePersist) => state.user.provinsi);
   const { data: kab, isLoading } = fetchKabupaten(provinsi);
 
   const form = useForm<filterLocationType>({

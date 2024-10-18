@@ -1,5 +1,4 @@
 import { fetchProfileUser } from "@/hooks/fetchHooks";
-import { RootState } from "@/redux/store";
 import { useSelector } from "react-redux";
 import ProfilePicture from "./profilePicture";
 import ProfileDetail from "./profileDetail";
@@ -9,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { logout } from "@/services/formPostHandler";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
+import { RootStatePersist } from "@/redux/redux-persist/store-persist";
 
 function ProfilePage() {
   const { user_id } = useParams();
@@ -32,7 +32,7 @@ function ProfilePage() {
     });
   };
 
-  const email_user = useSelector((state: RootState) => state.user.email);
+  const email_user = useSelector((state: RootStatePersist) => state.user.email);
 
   const { data: profile, isLoading: loadingProfile, isError: errorProfile } = fetchProfileUser(user_id as string);
 

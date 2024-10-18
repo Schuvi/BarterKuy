@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardDescription, CardFooter, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "@/redux/store";
+import { RootStatePersist } from "@/redux/redux-persist/store-persist";
 import { updateThings } from "@/redux/thingsSlice";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { fetchProv, fetchKot } from "@/hooks/fetchHooks";
@@ -10,7 +10,7 @@ import { Form, FormField } from "../ui/form";
 import { useState } from "react";
 
 function SearchFilterModal({ onClose }: { onClose: () => void }) {
-  const provinsi = useSelector((state: RootState) => state.things.provinceThings);
+  const provinsi = useSelector((state: RootStatePersist) => state.things.provinceThings);
   const [isProvinsi, setIsProvinsi] = useState<boolean>(true);
   const [placeholder, setPlaceHolder] = useState<string>("Pilih Provinsi Terlebih Dahulu");
   const [fetchKab, setFetchKab] = useState<boolean>(false);

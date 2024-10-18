@@ -5,7 +5,7 @@ import { IKImage } from "imagekitio-react";
 import LocationFilter from "@/components/modal/locationFilter";
 import { useState } from "react";
 import { useSelector } from "react-redux";
-import { RootState } from "@/redux/store";
+import { RootStatePersist } from "@/redux/redux-persist/store-persist";
 import like from "../../assets/hearts_500px.png";
 import { postsData } from "@/types/type";
 import { Card } from "@/components/ui/card";
@@ -13,8 +13,8 @@ import { Card } from "@/components/ui/card";
 function HomePage() {
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState<boolean>(false);
-  const location = useSelector((state: RootState) => state.user.kabupaten);
-  const kategori = useSelector((state: RootState) => state.user.kategori);
+  const location = useSelector((state: RootStatePersist) => state.user.kabupaten);
+  const kategori = useSelector((state: RootStatePersist) => state.user.kategori);
   const { data: posts } = usePosts(location, kategori);
 
   const handleDetail = (id: number) => {

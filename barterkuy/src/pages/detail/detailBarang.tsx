@@ -1,15 +1,15 @@
 import { useSelector } from "react-redux";
-import { RootState } from "@/redux/store";
 import { fetchDetailBarang } from "@/hooks/fetchHooks";
 import DetailBarangImg from "./detailBarangImg";
 import DetailBarangDesc from "./detailBarangDesc";
 import DetailBarangFoot from "./detailBarangFoot";
 import { fetchLikedThings } from "@/hooks/fetchHooks";
 import { useParams } from "react-router-dom";
+import { RootStatePersist } from "@/redux/redux-persist/store-persist";
 
 function DetailBarang() {
   const {id} = useParams()
-  const user_id = useSelector((state: RootState) => state.user.user_id);
+  const user_id = useSelector((state: RootStatePersist) => state.user.user_id);
 
   const { data: detail } = fetchDetailBarang(id as string);
 

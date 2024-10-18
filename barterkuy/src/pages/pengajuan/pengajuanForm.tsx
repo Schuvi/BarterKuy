@@ -9,7 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { update } from "@/redux/userSlice";
-import { RootState } from "@/redux/store";
+import { RootStatePersist } from "@/redux/redux-persist/store-persist";
 import GiveThingsUpImg from "./pengajuanUploadImg";
 import { Card } from "@/components/ui/card";
 
@@ -21,7 +21,7 @@ function GiveThingsForm({ kategori, loadingData, errorData }: { kategori: dataKa
 
   const dispatch = useDispatch();
 
-  const isDisabled = useSelector((state: RootState) => state.user.disabledLoc);
+  const isDisabled = useSelector((state: RootStatePersist) => state.user.disabledLoc);
 
   return (
     <>

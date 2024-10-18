@@ -5,13 +5,13 @@ import { updateThings } from "@/redux/thingsSlice";
 import { Button } from "@/components/ui/button";
 import SearchFilterModal from "@/components/modal/searchFilterModal";
 import { useSearchParams } from "react-router-dom";
-import { RootState } from "@/redux/store";
+import { RootStatePersist } from "@/redux/redux-persist/store-persist";
 
 function SearchInput() {
   const [searchParams, setSearchParams] = useSearchParams()
   const [searchInput, setSearchInput] = useState<string>("");
   const [isFilter, setIsFilter] = useState<boolean>(false)
-  const location = useSelector((state: RootState) => state.things.kabupatenThings)
+  const location = useSelector((state: RootStatePersist) => state.things.kabupatenThings)
 
   const dispatch = useDispatch();
 

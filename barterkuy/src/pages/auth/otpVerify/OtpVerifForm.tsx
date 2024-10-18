@@ -6,11 +6,11 @@ import { OtpPostVerify } from "@/services/formPostHandler";
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { update } from "@/redux/userSlice";
-import { RootState } from "@/redux/store";
+import { RootStatePersist } from "@/redux/redux-persist/store-persist";
 
 function OtpVerifForm() {
-    const pending = useSelector((state: RootState) => state.user.pending)
-    const email = useSelector((state: RootState) => state.user.email)
+    const pending = useSelector((state: RootStatePersist) => state.user.pending)
+    const email = useSelector((state: RootStatePersist) => state.user.email)
     const dispatch = useDispatch()
 
     const [countdown, setCountdown] = useState<number>(60)
