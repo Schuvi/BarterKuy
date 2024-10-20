@@ -8,7 +8,7 @@ import withReactContent from "sweetalert2-react-content";
 import { useMutation } from "@tanstack/react-query";
 import { OtpHandler } from "@/hooks/useForm";
 import { useQueryClient } from "@tanstack/react-query";
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 
 // Sign Up Post Handler
 export const signPostHandler = () => {
@@ -68,6 +68,8 @@ export const signPostHandler = () => {
 export const loginPostHandler = () => {
   const navigate = useNavigate();
 
+  const dispatch = useDispatch()
+
   const MySwal = withReactContent(Swal);
 
   const { handleSubmit, formLogin, control } = LoginHandler();
@@ -87,6 +89,7 @@ export const loginPostHandler = () => {
           confirmButtonText: "Konfirmasi",
         }).then((result) => {
           if (result.isConfirmed) {
+            dispatch(update({ token: response.data.accessToken }))
             window.localStorage.setItem("token", response.data.accessToken);
             navigate("/");
           }

@@ -97,6 +97,7 @@ export interface statePersist {
   provinsi: string;
   kabupaten: string;
   kecamatan: string;
+  token: string;
 }
 
 export interface UserState {
@@ -110,4 +111,5 @@ export interface UserState {
   kategori: string;
   disabledLoc: boolean;
   fileUpload: any[];
+  token: string;
 }

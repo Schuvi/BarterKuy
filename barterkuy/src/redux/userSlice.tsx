@@ -2,16 +2,17 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { UserState } from "@/types/type";
 
 export const initialState = {
-  email: "satra.shufi46@smk.belajar.id",
+  email: "",
   pending: false,
-  user_id: 9,
-  nama: "Satra Shufi Aliyu",
-  provinsi: "DKI Jakarta",
-  kabupaten: "Jakarta Timur",
-  kecamatan: "Penggilingan",
+  user_id: 0,
+  nama: "",
+  provinsi: "",
+  kabupaten: "",
+  kecamatan: "",
   kategori: "",
   disabledLoc: false,
   fileUpload: [],
+  token: "",
 }
 
 export const userSlice = createSlice({
