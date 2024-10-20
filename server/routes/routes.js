@@ -1,40 +1,29 @@
 const express = require("express");
 const router = express.Router();
-const jwt = require("jsonwebtoken");
+const authJWT = require("./protectedApi")
 
 const barterController = require("../controller/controller");
 
-const authenticateJWT = (req, res, next) => {
-  const token = req.header("Authorization")?.split(" ")[1];
-  if (!token) return res.status(401).json({ message: "Access denied" });
-
-  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-    if (err) return res.status(403).json({ message: "Invalid token" });
-    req.user = user;
-    next();
-  });
-};
-
 router.post("/register", barterController.register);
 router.post("/login", barterController.login);
-router.post("/logout", authenticateJWT, barterController.logout);
-router.post("/otp", barterController.otp);
-router.post("/verify-otp", barterController.verifyOtp);
-router.post("/laporkan", barterController.laporkanPengguna);
-router.post("/delete/liked", barterController.deleteLikeBarang);
-router.post("/post/liked", barterController.likeBarang);
-router.post("/post/barang", barterController.pengajuanBarang);
-router.post("/update/profile/img", barterController.editProfileImg);
-router.post("/delete/img", barterController.deleteImageKit);
-router.post("/edit/profile", barterController.editDataProfile);
-router.post("/edit/profile/location", barterController.editProfileLocation);
-router.get("/search", barterController.searchBarang);
-router.get("/posts", barterController.postinganBarang);
-router.get("/kabupaten", barterController.fetchKabupaten);
-router.get("/detail", barterController.detailBarang);
-router.get("/get/liked", barterController.getLikeBarang);
-router.get("/get/auth/imagekit", barterController.reqUploadGambar);
-router.get("/get/kategori", barterController.getKategori);
-router.get("/get/user", barterController.getUserProfile);
+router.post("/logout", authJWT, barterController.logout);
+router.post("/otp", authJWT, barterController.otp);
+router.post("/verify-otp", authJWT, barterController.verifyOtp);
+router.post("/laporkan", authJWT, barterController.laporkanPengguna);
+router.post("/delete/liked", authJWT, barterController.deleteLikeBarang);
+router.post("/post/liked", authJWT, barterController.likeBarang);
+router.post("/post/barang", authJWT, barterController.pengajuanBarang);
+router.post("/update/profile/img", authJWT, barterController.editProfileImg);
+router.post("/delete/img", authJWT, barterController.deleteImageKit);
+router.post("/edit/profile", authJWT, barterController.editDataProfile);
+router.post("/edit/profile/location", authJWT, barterController.editProfileLocation);
+router.get("/search", authJWT, barterController.searchBarang);
+router.get("/posts", authJWT, barterController.postinganBarang);
+router.get("/kabupaten", authJWT, barterController.fetchKabupaten);
+router.get("/detail", authJWT, barterController.detailBarang);
+router.get("/get/liked", authJWT, barterController.getLikeBarang);
+router.get("/get/auth/imagekit", authJWT, barterController.reqUploadGambar);
+router.get("/get/kategori", authJWT, barterController.getKategori);
+router.get("/get/user", authJWT, barterController.getUserProfile);
 
 module.exports = router;
