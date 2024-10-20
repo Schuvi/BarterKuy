@@ -77,7 +77,7 @@ const barterController = {
 
       const { email, password } = req.body;
 
-      const sql = "SELECT * FROM pengguna WHERE email = ?";
+      const sql = "SELECT pengguna.user_id, email, nama_lengkap, lokasi.provinsi, lokasi.kota, lokasi.kecamatan, password FROM pengguna JOIN lokasi ON pengguna.lokasi = lokasi.id_lokasi WHERE email = ?";
 
       const [response] = await connection.query(sql, [email]);
 
@@ -86,6 +86,8 @@ const barterController = {
       if (response.length === 1) {
         const userData = response[0];
 
+        const {password: hashedPassword, ...userDataWithoutPassword } = userData
+
         if (userData.verifikasi === "invalid") {
           res.status(401).json({
             statusCode: 401,
@@ -93,7 +95,7 @@ const barterController = {
           });
         }
 
-        const isValid = await bcrypt.compare(password, userData.password);
+        const isValid = await bcrypt.compare(password, hashedPassword);
         if (!isValid) {
           res.status(401).json({
             statusCode: 401,
@@ -132,7 +134,7 @@ const barterController = {
             statusCode: 201,
             message: "Login success!",
             accessToken: accessToken,
-            userId: userData.user_id,
+            data: userDataWithoutPassword,
           });
         }
       }
@@ -953,10 +955,7 @@ const barterController = {
         if (response) {
           const oldPass = response[0];
 
-          const [compare, hashedPassword] = await Promise.all([
-            bcrypt.compare(old_password, oldPass.password),
-            bcrypt.hash(password, 12)
-          ])
+          const [compare, hashedPassword] = await Promise.all([bcrypt.compare(old_password, oldPass.password), bcrypt.hash(password, 12)]);
 
           if (!compare) {
             return res.status(400).json({
@@ -964,7 +963,6 @@ const barterController = {
               message: "Password is incorrect",
             });
           } else {
-
             const [responsePost] = await connection.query(sqlEditProfilePassword, [hashedPassword, user_id]);
 
             if (responsePost) {
