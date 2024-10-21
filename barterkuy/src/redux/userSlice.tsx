@@ -10,6 +10,7 @@ export const initialState = {
   kabupaten: "",
   kecamatan: "",
   kategori: "",
+  location: "",
   disabledLoc: false,
   fileUpload: [],
   token: "",
@@ -22,8 +23,18 @@ export const userSlice = createSlice({
     update: (state, action: PayloadAction<Partial<UserState>>) => {
       Object.assign(state, action.payload)
     },
+    signout: (state) => {
+      state.email = "";
+      state.user_id = 0;
+      state.nama = "";
+      state.provinsi = "";
+      state.kabupaten = "";
+      state.kecamatan = "";
+      state.location = "";
+      state.token = "";
+    }
   },
 });
 
-export const { update } = userSlice.actions;
+export const { update, signout } = userSlice.actions;
 export default userSlice.reducer;

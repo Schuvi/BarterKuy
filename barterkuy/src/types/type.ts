@@ -98,6 +98,7 @@ export interface statePersist {
   kabupaten: string;
   kecamatan: string;
   token: string;
+  location: string;
 }
 
 export interface UserState {
@@ -112,4 +113,9 @@ export interface UserState {
   disabledLoc: boolean;
   fileUpload: any[];
   token: string;
+  location: string;
+}
+
+export interface protectedRouteType {
+  children?: JSX.Element
 }

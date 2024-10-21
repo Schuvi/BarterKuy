@@ -8,7 +8,7 @@ import { loginPostHandler } from "@/services/formPostHandler";
 function LoginWithEmail() {
   const [showPassword, setShowPassword] = useState(false);
 
-  const {formLogin, control, handleLogin} = loginPostHandler()
+  const { formLogin, control, handleLogin } = loginPostHandler();
   return (
     <>
       <div className="container mt-3">
@@ -24,7 +24,7 @@ function LoginWithEmail() {
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Input {...field} value={field.value || ""} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -40,7 +40,7 @@ function LoginWithEmail() {
                   <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input type={showPassword === false ? "password" : "text"} {...field} />
+                      <Input {...field} type={showPassword === false ? "password" : "text"} value={field.value || ""} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

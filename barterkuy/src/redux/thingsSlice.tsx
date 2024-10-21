@@ -5,14 +5,11 @@ export const thingsSlice = createSlice({
   initialState: {
     provinceThings: "",
     kabupatenThings: "",
-    triggerSearch: false
+    triggerSearch: false,
   },
   reducers: {
     updateThings: (state, action) => {
-      return {
-        ...state,
-        ...action.payload,
-      };
+      Object.assign(state, action.payload)
     },
   },
 });

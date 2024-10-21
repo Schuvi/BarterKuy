@@ -59,7 +59,7 @@ function SignUpForm() {
                   return (
                     <FormItem>
                       <FormControl>
-                        <Input {...field} className="p-3 rounded-2xl w-[45vw]" placeholder="Email" />
+                        <Input {...field} className="p-3 rounded-2xl w-[45vw]" placeholder="Email" value={field.value || ''}/>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -75,7 +75,7 @@ function SignUpForm() {
                 return (
                   <FormItem>
                     <FormControl>
-                      <Input {...field} className="p-3 rounded-2xl mb-2" placeholder="Nomor Telepon" />
+                      <Input {...field} className="p-3 rounded-2xl mb-2" placeholder="Nomor Telepon" value={field.value || ''}/>
                     </FormControl>
                     <FormMessage />
                   </FormItem>

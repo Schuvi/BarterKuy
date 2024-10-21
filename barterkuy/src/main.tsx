@@ -31,7 +31,7 @@ createRoot(document.getElementById("root")!).render(
           </PreventPullRefresh>
         </Provider>
       </GoogleOAuthProvider>
+      <ReactQueryDevtools initialIsOpen={false}/>
     </StrictMode>
-    <ReactQueryDevtools />
   </QueryClientProvider>
 );

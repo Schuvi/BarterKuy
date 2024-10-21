@@ -1,7 +1,7 @@
 import { api } from "./axiosConfig";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { update } from "@/redux/userSlice";
+import { update, signout } from "@/redux/userSlice";
 import { signUpHandler, LoginHandler, formPengajuanHandler, editProfileNameHandler, editProfileTelephoneHandler, editProfileLocationHandler, changePasswordHandler } from "@/hooks/useForm";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
@@ -9,6 +9,7 @@ import { useMutation } from "@tanstack/react-query";
 import { OtpHandler } from "@/hooks/useForm";
 import { useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
+import { RootStatePersist } from "@/redux/redux-persist/store-persist";
 
 // Sign Up Post Handler
 export const signPostHandler = () => {
@@ -46,9 +47,12 @@ export const signPostHandler = () => {
           text: "Akun berhasil dibuat",
           icon: "success",
           confirmButtonText: "OK",
+        }).then((response) => {
+          if (response.isConfirmed) {
+            dispatch(update({ email: emailRes }));
+            navigate("/otp_verification");
+          }
         });
-        dispatch(update({ email: emailRes }));
-        navigate("otp_verification");
       }
     } catch (error) {
       if (error) {
@@ -68,7 +72,7 @@ export const signPostHandler = () => {
 export const loginPostHandler = () => {
   const navigate = useNavigate();
 
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
   const MySwal = withReactContent(Swal);
 
@@ -87,10 +91,25 @@ export const loginPostHandler = () => {
           title: "Sign In sukses",
           icon: "success",
           confirmButtonText: "Konfirmasi",
-        }).then((result) => {
+        }).then(async (result) => {
           if (result.isConfirmed) {
-            dispatch(update({ token: response.data.accessToken }))
-            window.localStorage.setItem("token", response.data.accessToken);
+            const lokasi = response.data.data.kota as string;
+
+            const locNow = lokasi.replace("Kota", "").replace("Kabupaten", "").trim();
+
+            dispatch(
+              update({
+                token: response.data.accessToken,
+                user_id: response.data.data.user_id,
+                email: response.data.data.email,
+                nama: response.data.data.nama_lengkap,
+                provinsi: response.data.data.provinsi,
+                kabupaten: response.data.data.kota,
+                kecamatan: response.data.data.kabupaten,
+                location: locNow,
+              })
+            );
+
             navigate("/");
           }
         });
@@ -124,17 +143,12 @@ export const OtpReqHandler = (email: string) => {
 
   const sendOtp = useMutation({
     mutationFn: async (formData: FormData) => {
-      const response = await api.post("/otp", formData, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await api.post("/otp", formData);
 
       return response.data;
     },
     onSuccess: (data) => {
-      console.log(data);
-      if (data.message === "OTP verified successfully") {
+      if (data.statusCode === 201) {
         Toast.fire({
           icon: "success",
           title: "OTP berhasil dikirim",
@@ -176,13 +190,7 @@ export const OtpPostVerify = (email: string) => {
     formData.append("otp", values.otp);
     formData.append("email", values.email);
 
-    console.log("email", values.email);
-
-    const response = await api.post("/verify-otp", formData, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await api.post("/verify-otp", formData);
 
     if (response.data.message === "OTP verified successfully") {
       MySwal.fire({
@@ -309,11 +317,33 @@ export const handlePostPengajuan = () => {
       formData.append("jenis_penawaran", value.jenis_penawaran);
       formData.append("link_gambar", JSON.stringify(value.fileImg));
 
-      const response = await api.post("/post/barang", formData, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      try {
+        const response = await api.post("/post/barang", formData, {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (response.status === 201) {
+          MySwal.fire({
+            title: "Berhasil",
+            text: "Pengajuan barang berhasil, silahkan tunggu paling lambat 24 jam",
+            icon: "success",
+          });
+        }
+      } catch (error: unknown) {
+        if (axios.isAxiosError(error)) {
+          const errorMessage = error.response?.data.message;
+
+          if (errorMessage === "Internal Server Error") {
+            MySwal.fire({
+              title: "Error",
+              text: "Gagal mengajukan barang, coba beberapa saat lagi",
+              icon: "error",
+            });
+          }
+        }
+      }
     }
   });
 
@@ -526,7 +556,7 @@ export const handlePostChangePassword = (onClose: () => void) => {
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
         const errorStatus = error.response?.status;
-        const errorMessage = error.response?.data.message
+        const errorMessage = error.response?.data.message;
 
         if (errorMessage === "Password is incorrect") {
           MySwal.fire({
@@ -551,23 +581,17 @@ export const handlePostChangePassword = (onClose: () => void) => {
 export const logout = () => {
   const navigate = useNavigate();
 
+  const dispatch = useDispatch();
+
   return useMutation({
     mutationFn: async () => {
-      const response = await api.post(
-        "/logout",
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${window.localStorage.getItem("token")}`,
-          },
-        }
-      );
+      const response = await api.post("/logout", {});
 
       return response.data;
     },
     onSuccess: (data) => {
       if (data.message === "Logout succesful") {
-        window.localStorage.removeItem("token");
+        dispatch(signout());
         navigate("/login");
       }
     },

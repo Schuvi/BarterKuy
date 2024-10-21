@@ -21,7 +21,7 @@ const locationFilter = z.object({
 type filterLocationType = z.infer<typeof locationFilter>;
 
 function LocationFilter({ onClose }: LocationFilterProps) {
-  const location = useSelector((state: RootStatePersist) => state.user.kabupaten);
+  const location = useSelector((state: RootStatePersist) => state.user.location);
   const provinsi = useSelector((state: RootStatePersist) => state.user.provinsi);
   const { data: kab, isLoading } = fetchKabupaten(provinsi);
 
@@ -39,7 +39,7 @@ function LocationFilter({ onClose }: LocationFilterProps) {
   const handleFilter = handleSubmit((values) => {
     const kabupaten = values.kabupaten.replace("Kota", "").replace("Kabupaten", "").trim();
 
-    dispatch(update({ kabupaten: kabupaten }));
+    dispatch(update({ location: kabupaten }));
     onClose();
   });
 

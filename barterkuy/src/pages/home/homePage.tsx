@@ -13,9 +13,9 @@ import { Card } from "@/components/ui/card";
 function HomePage() {
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState<boolean>(false);
-  const location = useSelector((state: RootStatePersist) => state.user.kabupaten);
+  const location = useSelector((state: RootStatePersist) => state.user.location);
   const kategori = useSelector((state: RootStatePersist) => state.user.kategori);
-  const { data: posts } = usePosts(location, kategori);
+  const { data: posts, isError: errorPosts } = usePosts(location, kategori);
 
   const handleDetail = (id: number) => {
     navigate(`/detail/${id}`);
@@ -36,34 +36,36 @@ function HomePage() {
         </div>
       </section>
 
+      {errorPosts && <h1 className="text-center">Barang tidak ditemukan</h1>}
+
       <section className="p-2">
         <div className="container p-2 flex justify-start gap-x-6 gap-y-3 flex-wrap">
           {posts?.data.map((item: postsData) => (
-            <Card className="w-[42vw] p-3 rounded-xl h-[38vh]" key={item.id} onClick={() => handleDetail(item.id)}>
-              <div className="container w-full h-[18vh]">
-                <IKImage
-                  urlEndpoint={import.meta.env.VITE_IMAGEKIT_PUBLIC_URL_ENDPOINT}
-                  path={item.link_gambar[0]}
-                  transformation={[
-                    {
-                      quality: "10",
-                    },
-                  ]}
-                  className="rounded-lg w-full h-full object-cover"
-                />
-              </div>
+                <Card className="w-[42vw] p-3 rounded-xl h-[38vh]" key={item.id} onClick={() => handleDetail(item.id)}>
+                  <div className="container w-full h-[18vh]">
+                    <IKImage
+                      urlEndpoint={import.meta.env.VITE_IMAGEKIT_PUBLIC_URL_ENDPOINT}
+                      path={item.link_gambar[0]}
+                      transformation={[
+                        {
+                          quality: "10",
+                        },
+                      ]}
+                      className="rounded-lg w-full h-full object-cover"
+                    />
+                  </div>
 
-              <div className="container flex flex-col justify-end h-[16vh] mt-2">
-                <div className="container flex flex-col h-full justify-start">
-                  <h1 className="font-bold text-md mb-2">{item.nama_barang.length >= 15 ? `${item.nama_barang.slice(0, 15)}...` : item.nama_barang}</h1>
+                  <div className="container flex flex-col justify-end h-[16vh] mt-2">
+                    <div className="container flex flex-col h-full justify-start">
+                      <h1 className="font-bold text-md mb-2">{item.nama_barang.length >= 15 ? `${item.nama_barang.slice(0, 15)}...` : item.nama_barang}</h1>
 
-                  <p className="mb-2 text-sm overflow-hidden">{item.deskripsi_barang.length >= 50 ? `${item.deskripsi_barang.slice(0, 50)}...` : item.deskripsi_barang}</p>
-                </div>
+                      <p className="mb-2 text-sm overflow-hidden">{item.deskripsi_barang.length >= 50 ? `${item.deskripsi_barang.slice(0, 50)}...` : item.deskripsi_barang}</p>
+                    </div>
 
-                <h2 className="text-end text-sm text-color1 ">{item.lokasi}</h2>
-              </div>
-            </Card>
-          ))}
+                    <h2 className="text-end text-sm text-color1 ">{item.lokasi}</h2>
+                  </div>
+                </Card>
+              ))}
         </div>
       </section>
 

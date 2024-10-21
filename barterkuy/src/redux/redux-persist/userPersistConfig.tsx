@@ -5,8 +5,8 @@ import { initialState } from "../userSlice";
 
 const userTransform = createTransform<UserState, statePersist, any>(
   (inboundState: UserState, key: string | number | symbol): statePersist => {
-    const { email, user_id, nama, provinsi, kabupaten, kecamatan, token } = inboundState;
-    return { email, user_id, nama, provinsi, kabupaten, kecamatan, token };
+    const { email, user_id, nama, provinsi, kabupaten, kecamatan, token, location } = inboundState;
+    return { email, user_id, nama, provinsi, kabupaten, kecamatan, token, location };
   },
 
   (outboundState: statePersist, key: string | number | symbol): UserState => {

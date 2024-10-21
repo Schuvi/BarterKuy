@@ -1,4 +1,4 @@
-import { createBrowserRouter, useLocation, Outlet, matchPath } from "react-router-dom";
+import { createBrowserRouter, useLocation, Outlet, matchPath, useMatch } from "react-router-dom";
 import LoginApp from "@/pages/auth/login/loginPage";
 import HomePage from "@/pages/home/homePage";
 import SignUpPage from "@/pages/auth/signup/signUpPage";
@@ -9,11 +9,12 @@ import SearchPage from "@/pages/search/searchPage";
 import Navbar from "@/layouts/navbar/navbar";
 import ProfilePage from "@/pages/profile/profilePage";
 import GiveThings from "@/pages/pengajuan/pengajuanPage";
+import ProtectedRoute from "./protectedRoute";
 
 function Layout() {
   const location = useLocation();
 
-  const hideNavbarRouted = ["/login", "/signup", "/otp_verification", "/detail/:id"];
+  const hideNavbarRouted = ["/login", "/signup", "/otp_verification"];
 
   const isDetailPage = matchPath("/detail/:id", location.pathname);
 
@@ -34,7 +35,11 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/",
-        element: <HomePage />,
+        element: (
+          <ProtectedRoute>
+            <HomePage />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "/login",
@@ -53,28 +58,56 @@ const router = createBrowserRouter([
       },
       {
         path: "/detail/:id",
-        element: <DetailBarang />,
+        element: (
+          <ProtectedRoute>
+            <DetailBarang />
+          </ProtectedRoute>
+        ),
         caseSensitive: true,
       },
       {
         path: "/liked",
-        element: <LikeBarang />,
+        element: (
+          <ProtectedRoute>
+            <LikeBarang />
+          </ProtectedRoute>
+        ),
         caseSensitive: true,
       },
       {
         path: "/search",
-        element: <SearchPage />,
+        element: (
+          <ProtectedRoute>
+            <SearchPage />
+          </ProtectedRoute>
+        ),
         caseSensitive: true,
       },
       {
         path: "/give",
-        element: <GiveThings />,
+        element: (
+          <ProtectedRoute>
+            <GiveThings />
+          </ProtectedRoute>
+        ),
         caseSensitive: true,
       },
       {
         path: "/profile/:user_id",
-        element: <ProfilePage />,
+        element: (
+          <ProtectedRoute>
+            <ProfilePage />
+          </ProtectedRoute>
+        ),
         caseSensitive: true,
+      },
+      {
+        path: "*",
+        element: (
+          <>
+            <h1 className="text-center mt-4">Halaman tidak ada</h1>
+          </>
+        ),
       },
     ],
   },
