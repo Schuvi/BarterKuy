@@ -5,20 +5,19 @@ const dotenv = require("dotenv");
 const http = require("http");
 const socketIo = require("socket.io");
 const cookieParser = require("cookie-parser");
-const https = require('https');
-const fs = require('fs');
+const https = require("https");
+const fs = require("fs");
 
 dotenv.config();
 
 const options = {
-  key: fs.readFileSync('./localhost-key.pem'),
-  cert: fs.readFileSync('./localhost.pem')
+  key: fs.readFileSync("./localhost-key.pem"),
+  cert: fs.readFileSync("./localhost.pem"),
 };
 
 const pool = require("./database/db");
 
 const app = express();
-
 
 const barterRouter = require("./routes/routes");
 app.use(cors());
@@ -32,43 +31,102 @@ app.use(bodyParser.json());
 
 app.use("/api/barterkuy", barterRouter);
 
-const io = socketIo(server);
+const io = socketIo(server, {
+  cors: {
+    origin: "https://192.168.54.173:5173", // Sesuaikan dengan URL frontend
+    methods: ["GET", "POST"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  },
+});
 
 const users = {};
 
 io.on("connection", (socket) => {
   console.log("a new client connected", socket.id);
 
+  // Event 'kontak tujuan' untuk user bergabung ke room tujuan
   socket.on("kontak tujuan", (tujuan) => {
     socket.join(tujuan);
+    console.log(`User joined room: ${tujuan}`);
   });
 
-  socket.on("login", (userId) => {
+  // Event 'login' untuk mencatat user yang terhubung
+  socket.on("login", async (userId) => {
     users[userId] = socket.id;
-  });
-
-  socket.on("chat message", (msg, tujuan, userId) => {
-    if (!users[tujuan] || !users[userId]) {
-      console.log("user tidak terdaftar");
-      return;
-    }
-
-    const targetSocketId = users[tujuan];
-
-    const sql = "INSERT INTO chat (sender, receiver, chat, timestamp) VALUES (?, ?, ?, ?)";
-    pool.query(sql, [userId, tujuan, msg], (err, res) => {
-      if (err) throw err;
-      io.to(userId).emit("chat message", { msg, userId });
-      io.to(targetSocketId).emit("chat message", { msg, userId });
+    console.log(`User logged in: ${userId}, Socket ID: ${socket.id}`);
+  
+    // Ambil pesan tertunda dari database
+    const sql = "SELECT * FROM chat WHERE receiver = ? AND status = 'pending'";
+    pool.query(sql, [userId], (err, results) => {
+      if (err) {
+        console.error("Error saat mengambil pesan tertunda:", err);
+        return;
+      }
+  
+      // Kirim pesan tertunda ke pengguna
+      results.forEach((message) => {
+        io.to(socket.id).emit("chat message", { msg: message.chat, userId: message.sender });
+        
+        // Update status pesan menjadi 'delivered'
+        const updateSql = "UPDATE chat SET status = 'delivered' WHERE id = ?";
+        pool.query(updateSql, [message.id], (err) => {
+          if (err) {
+            console.error("Error saat memperbarui status pesan:", err);
+          }
+        });
+      });
+  
+      if (results.length > 0) {
+        console.log(`Pesan tertunda dikirim ke user ${userId}`);
+      }
     });
   });
 
+  // Event 'chat message' untuk menerima dan mengirim pesan ke tujuan
+  socket.on("chat message", async (msg, tujuan, userId) => {
+    try {
+      // Periksa apakah pengirim dan penerima terdaftar
+      if (!users[userId]) {
+        console.log("Pengirim tidak terdaftar");
+        return;
+      }
+
+      if (!users[tujuan]) {
+        console.log("Penerima tidak terdaftar");
+        return;
+      }
+
+      const targetSocketId = users[tujuan];
+
+      console.log(`Mengirim pesan dari ${userId} ke ${tujuan}: ${msg}`);
+
+      // Emit pesan ke pengirim
+      io.to(users[userId]).emit("chat message", { msg, userId });
+      console.log(`Pesan terkirim ke pengirim: ${userId} dengan isi: ${msg}`);
+
+      // Emit pesan ke penerima
+      io.to(targetSocketId).emit("chat message", { msg, userId });
+      console.log(`Pesan terkirim ke penerima: ${tujuan} dengan isi: ${msg}`);
+
+      // Simpan pesan ke database
+      const status = targetSocketId ? 'delivered' : 'pending';
+      const sql = "INSERT INTO chat (sender, receiver, chat, status) VALUES (?, ?, ?, ?)";
+      await pool.query(sql, [userId, tujuan, msg, status]);
+    } catch (error) {
+      console.error("Error dalam mengirim pesan:", error);
+    }
+  });
+
+  // Event 'disconnect' untuk menghapus user dari daftar ketika user terputus
   socket.on("disconnect", () => {
     console.log("a client disconnected", socket.id);
 
+    // Cari dan hapus user yang terputus dari daftar users
     for (let userId in users) {
       if (users[userId] === socket.id) {
         delete users[userId];
+        console.log(`User ${userId} disconnected`);
         break;
       }
     }

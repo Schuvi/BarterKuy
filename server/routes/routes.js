@@ -25,5 +25,6 @@ router.get("/get/liked", authJWT, barterController.getLikeBarang);
 router.get("/get/auth/imagekit", authJWT, barterController.reqUploadGambar);
 router.get("/get/kategori", authJWT, barterController.getKategori);
 router.get("/get/user", authJWT, barterController.getUserProfile);
+router.get("/chat", authJWT, barterController.chat);
 
 module.exports = router;

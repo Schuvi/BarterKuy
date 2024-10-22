@@ -86,7 +86,7 @@ const barterController = {
       if (response.length === 1) {
         const userData = response[0];
 
-        const {password: hashedPassword, ...userDataWithoutPassword } = userData
+        const { password: hashedPassword, ...userDataWithoutPassword } = userData;
 
         if (userData.verifikasi === "invalid") {
           res.status(401).json({
@@ -97,8 +97,8 @@ const barterController = {
 
         const isValid = await bcrypt.compare(password, hashedPassword);
         if (!isValid) {
-          res.status(401).json({
-            statusCode: 401,
+          res.status(404).json({
+            statusCode: 404,
             message: "Data is not valid",
           });
         } else {
@@ -319,7 +319,7 @@ const barterController = {
 
         const linkGambarArray = JSON.parse(link_gambar);
 
-        const sqlGambar = "INSERT INTO gambar_barang (barang_id, link_gambar, fileId) VALUES (?, ?, ?)";
+        const sqlGambar = "INSERT INTO gambar_barang (barang_id, link_gambar, gambar_id) VALUES (?, ?, ?)";
         for (const gambar of linkGambarArray) {
           await connection.query(sqlGambar, [barangId, gambar.filePath, gambar.fileId]);
         }
@@ -378,19 +378,34 @@ const barterController = {
     try {
       await connection.beginTransaction();
 
-      const { userId, tujuan } = req.query;
+      const { userId, tujuan, limit, offset } = req.query; // Menambahkan limit dan offset
 
-      const sql = "SELECT sender, receiver, chat, timestamp FROM chat WHERE (sender = ? AND receiver = ?) OR (sender = ? AND receiver = ?) ORDER BY timestamp ASC";
+      const limitInt = parseInt(limit);
 
-      const [response] = pool.query(sql, [userId, tujuan, userId, tujuan]);
+      const offsetInt = parseInt(offset);
+
+      const sql = `
+        SELECT sender, receiver, chat, timestamp 
+        FROM chat 
+        WHERE (sender = ? AND receiver = ?) OR (sender = ? AND receiver = ?)
+        ORDER BY timestamp ASC 
+        LIMIT ? OFFSET ?`;
+
+      // Menambahkan await dan parameter limit dan offset
+      const [response] = await connection.query(sql, [userId, tujuan, tujuan, userId, limitInt, offsetInt]);
 
       await connection.commit();
 
       if (response) {
-        res.status(201).json({
-          statusCode: 201,
+        res.status(200).json({
+          statusCode: 200,
           message: "Successfully retrieved chat data",
-          data: response.data,
+          data: response,
+        });
+      } else {
+        res.status(404).json({
+          statusCode: 404,
+          message: "No chat data found",
         });
       }
     } catch (error) {
@@ -398,7 +413,8 @@ const barterController = {
       console.error(error);
       res.status(500).json({
         statusCode: 500,
-        message: "Failed to retrieved chat data",
+        message: "Failed to retrieve chat data",
+        error: error.message,
       });
     } finally {
       connection.release();
