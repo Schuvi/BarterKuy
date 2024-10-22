@@ -10,9 +10,12 @@ import { likeData } from "@/types/type";
 import withReactContent from "sweetalert2-react-content";
 import Swal from "sweetalert2";
 import { useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
-function DetailBarangFoot({ like }: { like: likeData[] }) {
-  const {id} = useParams()
+function DetailBarangFoot({ like, receiverId }: { like: likeData[]; receiverId: string }) {
+  const { id } = useParams();
+
+  const navigate = useNavigate();
 
   const id_user = useSelector((state: RootStatePersist) => state.user.user_id);
 
@@ -22,7 +25,7 @@ function DetailBarangFoot({ like }: { like: likeData[] }) {
 
   const mutation = likeBarang();
 
-  const id_barang = Number(id)
+  const id_barang = Number(id);
 
   const liked = like.find((item) => item.id === id_barang);
 
@@ -55,7 +58,9 @@ function DetailBarangFoot({ like }: { like: likeData[] }) {
         </div>
 
         <div className="w-[50vw]">
-          <Button className="w-full bg-color4 font-bold">Hubungi Pemilik</Button>
+          <Button className="w-full bg-color4 font-bold" type="button" onClick={() => navigate(`/chat/${receiverId}`)}>
+            Hubungi Pemilik
+          </Button>
         </div>
 
         <div className="container w-9">

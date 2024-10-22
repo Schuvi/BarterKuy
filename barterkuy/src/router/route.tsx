@@ -1,4 +1,4 @@
-import { createBrowserRouter, useLocation, Outlet, matchPath, useMatch } from "react-router-dom";
+import { createBrowserRouter, useLocation, Outlet, matchPath } from "react-router-dom";
 import LoginApp from "@/pages/auth/login/loginPage";
 import HomePage from "@/pages/home/homePage";
 import SignUpPage from "@/pages/auth/signup/signUpPage";
@@ -10,6 +10,7 @@ import Navbar from "@/layouts/navbar/navbar";
 import ProfilePage from "@/pages/profile/profilePage";
 import GiveThings from "@/pages/pengajuan/pengajuanPage";
 import ProtectedRoute from "./protectedRoute";
+import Chat from "@/pages/chat/chatPage";
 
 function Layout() {
   const location = useLocation();
@@ -97,6 +98,15 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <ProfilePage />
+          </ProtectedRoute>
+        ),
+        caseSensitive: true,
+      },
+      {
+        path: "/chat/:target_id",
+        element: (
+          <ProtectedRoute>
+            <Chat />
           </ProtectedRoute>
         ),
         caseSensitive: true,

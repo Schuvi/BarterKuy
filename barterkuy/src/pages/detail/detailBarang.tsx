@@ -8,27 +8,29 @@ import { useParams } from "react-router-dom";
 import { RootStatePersist } from "@/redux/redux-persist/store-persist";
 
 function DetailBarang() {
-  const {id} = useParams()
+  const { id } = useParams();
   const user_id = useSelector((state: RootStatePersist) => state.user.user_id);
 
   const { data: detail } = fetchDetailBarang(id as string);
 
   const gambar = detail?.data[0].link_gambar || [];
 
-  const data = detail?.data || []
+  const receiver_id = detail?.data[0].user_id || [];
 
-  const { data: likedThings } = fetchLikedThings(user_id)
+  const data = detail?.data || [];
 
-  const dataLiked = likedThings?.data || []
+  const { data: likedThings } = fetchLikedThings(user_id);
+
+  const dataLiked = likedThings?.data || [];
 
   return (
     <>
       <section className="flex flex-col min-h-screen">
-        <DetailBarangImg gambar={gambar}/>
+        <DetailBarangImg gambar={gambar} />
 
         <DetailBarangDesc detail={data} />
 
-        <DetailBarangFoot like={dataLiked}/>
+        <DetailBarangFoot like={dataLiked} receiverId={receiver_id}/>
       </section>
     </>
   );

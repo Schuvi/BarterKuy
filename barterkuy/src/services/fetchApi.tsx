@@ -95,3 +95,16 @@ export const fetchProfile = async (user_id: string) => {
 
   return response.data;
 };
+
+export const fetchMessage = async (userId: string, tujuan: string, limit: number, offset: number) => {
+  const response = await api.get("/chat", {
+    params: {
+      userId: userId,
+      tujuan: tujuan,
+      limit: limit,
+      offset: offset
+    }
+  });
+
+  return response.data.data
+}

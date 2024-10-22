@@ -117,5 +117,11 @@ export interface UserState {
 }
 
 export interface protectedRouteType {
-  children?: JSX.Element
+  children?: JSX.Element;
+}
+
+export interface stateChat {
+  message: string;
+  tujuan: string;
+  listMessage: { msg: string; userId: string }[];
 }
