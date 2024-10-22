@@ -34,7 +34,7 @@ function DetailBarangDesc({ detail }: { detail: detailData[] }) {
             <IKImage
                 urlEndpoint={import.meta.env.VITE_IMAGEKIT_PUBLIC_URL_ENDPOINT}
                 path={item.gambar_profile === null ? "/user/blank_profile.png" : item.gambar_profile}
-                className="w-[20vw] rounded-full"
+                className="w-[20vw] h-[10vh] rounded-full object-cover"
             />
             <div className="container w-full flex flex-col justify-evenly ml-3">
               <p className="text-md font-bold">{item.nama_lengkap}</p>
