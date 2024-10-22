@@ -479,6 +479,8 @@ export const handleEditLocationProfile = (onClose: () => void) => {
 
   const MySwal = withReactContent(Swal);
 
+  const dispatch = useDispatch();
+
   const queryClient = useQueryClient();
 
   const handlePostEditLocation = handleSubmit(async (value) => {
@@ -489,6 +491,8 @@ export const handleEditLocationProfile = (onClose: () => void) => {
     formData.append("provinsi", value.provinsi);
     formData.append("kota", value.kota);
     formData.append("kecamatan", value.kecamatan);
+
+    const kota = value.kota.replace("Kota", "").replace("Kabupaten", "").trim();
 
     try {
       const response = await api.post("/edit/profile/location", formData, {
@@ -505,6 +509,14 @@ export const handleEditLocationProfile = (onClose: () => void) => {
           confirmButtonText: "OK",
         }).then(async (response) => {
           if (response.isConfirmed) {
+            dispatch(
+              update({
+                location: kota,
+                provinsi: value.provinsi,
+                kecamatan: value.kecamatan,
+                kabupaten: value.kota
+              })
+            );
             await queryClient.invalidateQueries({ queryKey: ["profile", user] });
             onClose();
           }
