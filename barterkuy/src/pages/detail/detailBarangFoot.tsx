@@ -12,7 +12,7 @@ import Swal from "sweetalert2";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
-function DetailBarangFoot({ like, receiverId }: { like: likeData[]; receiverId: string }) {
+function DetailBarangFoot({ like, receiverId }: { like: likeData[]; receiverId: string; }) {
   const { id } = useParams();
 
   const navigate = useNavigate();
@@ -58,7 +58,7 @@ function DetailBarangFoot({ like, receiverId }: { like: likeData[]; receiverId: 
         </div>
 
         <div className="w-[50vw]">
-          <Button className="w-full bg-color4 font-bold" type="button" onClick={() => navigate(`/chat/${receiverId}`)}>
+          <Button className="w-full bg-color4 font-bold" type="button" onClick={() => navigate(`/chat/${receiverId}/${id_barang}`)}>
             Hubungi Pemilik
           </Button>
         </div>

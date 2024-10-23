@@ -30,7 +30,7 @@ function DetailBarang() {
 
         <DetailBarangDesc detail={data} />
 
-        <DetailBarangFoot like={dataLiked} receiverId={receiver_id}/>
+        <DetailBarangFoot like={dataLiked} receiverId={receiver_id} />
       </section>
     </>
   );

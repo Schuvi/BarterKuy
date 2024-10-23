@@ -55,7 +55,7 @@ io.on("connection", (socket) => {
   socket.on("login", async (userId) => {
     users[userId] = socket.id;
     console.log(`User logged in: ${userId}, Socket ID: ${socket.id}`);
-  
+
     // Ambil pesan tertunda dari database
     const sql = "SELECT * FROM chat WHERE receiver = ? AND status = 'pending'";
     pool.query(sql, [userId], (err, results) => {
@@ -63,11 +63,12 @@ io.on("connection", (socket) => {
         console.error("Error saat mengambil pesan tertunda:", err);
         return;
       }
-  
+
       // Kirim pesan tertunda ke pengguna
       results.forEach((message) => {
         io.to(socket.id).emit("chat message", { msg: message.chat, userId: message.sender });
-        
+        console.log(`Pesan tertunda dikirim ke user ${userId}: ${message.chat}`);
+
         // Update status pesan menjadi 'delivered'
         const updateSql = "UPDATE chat SET status = 'delivered' WHERE id = ?";
         pool.query(updateSql, [message.id], (err) => {
@@ -76,9 +77,9 @@ io.on("connection", (socket) => {
           }
         });
       });
-  
+
       if (results.length > 0) {
-        console.log(`Pesan tertunda dikirim ke user ${userId}`);
+        console.log(`Pesan tertunda telah dikirim ke user ${userId}`);
       }
     });
   });
@@ -86,33 +87,32 @@ io.on("connection", (socket) => {
   // Event 'chat message' untuk menerima dan mengirim pesan ke tujuan
   socket.on("chat message", async (msg, tujuan, userId) => {
     try {
-      // Periksa apakah pengirim dan penerima terdaftar
+      // Periksa apakah pengirim terdaftar
       if (!users[userId]) {
         console.log("Pengirim tidak terdaftar");
         return;
       }
 
-      if (!users[tujuan]) {
-        console.log("Penerima tidak terdaftar");
-        return;
-      }
-
+      // Simpan pesan dengan status 'pending' jika penerima tidak online
       const targetSocketId = users[tujuan];
-
-      console.log(`Mengirim pesan dari ${userId} ke ${tujuan}: ${msg}`);
-
-      // Emit pesan ke pengirim
-      io.to(users[userId]).emit("chat message", { msg, userId });
-      console.log(`Pesan terkirim ke pengirim: ${userId} dengan isi: ${msg}`);
-
-      // Emit pesan ke penerima
-      io.to(targetSocketId).emit("chat message", { msg, userId });
-      console.log(`Pesan terkirim ke penerima: ${tujuan} dengan isi: ${msg}`);
+      const status = targetSocketId ? "delivered" : "pending";
 
       // Simpan pesan ke database
-      const status = targetSocketId ? 'delivered' : 'pending';
       const sql = "INSERT INTO chat (sender, receiver, chat, status) VALUES (?, ?, ?, ?)";
       await pool.query(sql, [userId, tujuan, msg, status]);
+
+      // Emit pesan hanya jika penerima terdaftar (online)
+      if (targetSocketId) {
+        // Emit pesan ke pengirim
+        io.to(users[userId]).emit("chat message", { msg, userId });
+        console.log(`Pesan terkirim ke pengirim: ${userId} dengan isi: ${msg}`);
+
+        // Emit pesan ke penerima
+        io.to(targetSocketId).emit("chat message", { msg, userId });
+        console.log(`Pesan terkirim ke penerima: ${tujuan} dengan isi: ${msg}`);
+      } else {
+        console.log(`Penerima ${tujuan} tidak online, pesan disimpan sebagai 'pending'`);
+      }
     } catch (error) {
       console.error("Error dalam mengirim pesan:", error);
     }

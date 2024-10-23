@@ -10,7 +10,7 @@ import Navbar from "@/layouts/navbar/navbar";
 import ProfilePage from "@/pages/profile/profilePage";
 import GiveThings from "@/pages/pengajuan/pengajuanPage";
 import ProtectedRoute from "./protectedRoute";
-import Chat from "@/pages/chat/chatPage";
+import ChatPage from "@/pages/chat/chatPage";
 
 function Layout() {
   const location = useLocation();
@@ -103,10 +103,10 @@ const router = createBrowserRouter([
         caseSensitive: true,
       },
       {
-        path: "/chat/:target_id",
+        path: "/chat/:target_id/:barang_id",
         element: (
           <ProtectedRoute>
-            <Chat />
+            <ChatPage />
           </ProtectedRoute>
         ),
         caseSensitive: true,
