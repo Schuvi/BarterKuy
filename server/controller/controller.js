@@ -385,11 +385,14 @@ const barterController = {
       const offsetInt = parseInt(offset);
 
       const sql = `
+        SELECT * FROM (
         SELECT sender, receiver, chat, timestamp 
         FROM chat 
         WHERE (sender = ? AND receiver = ?) OR (sender = ? AND receiver = ?)
-        ORDER BY timestamp ASC 
-        LIMIT ? OFFSET ?`;
+        ORDER BY timestamp DESC 
+        LIMIT ?
+      ) AS latest_chats
+      ORDER BY timestamp ASC`;
 
       // Menambahkan await dan parameter limit dan offset
       const [response] = await connection.query(sql, [userId, tujuan, tujuan, userId, limitInt, offsetInt]);
@@ -1026,6 +1029,100 @@ const barterController = {
       });
     } finally {
       connection.release();
+    }
+  },
+
+  receiveThings: async (req, res) => {
+    const connection = await pool.getConnection();
+    try {
+      await connection.beginTransaction();
+
+      const { giver_id, receiver_id, barang_id } = req.query;
+
+      const sqlReceive = "INSERT INTO barang_diterima (giver_id, receiver_id, barang_id) VALUES (?, ?, ?)";
+
+      const [response] = await connection.query(sqlReceive, [giver_id, receiver_id, barang_id]);
+
+      await connection.commit()
+
+      if (response.affectedRows > 0) {
+        res.status(201).json({
+          statusCode: 201,
+          message: "Success receive things",
+        });
+      }
+    } catch (error) {
+      await connection.rollback();
+      res.status(500).json({
+        statusCode: 500,
+        message: "Error receive things, internal server error",
+      });
+    } finally {
+      connection.release();
+    }
+  },
+
+  getReceiveThings: async (req, res) => {
+    const connection = await pool.getConnection();
+
+    try {
+      await connection.beginTransaction();
+
+      const { receiver_id } = req.query;
+
+      const sqlGetReceive =
+        "SELECT pengguna.nama_lengkap, barang.nama_barang, tanggal, barang.lokasi, gambar_barang.link_gambar FROM barang_diterima JOIN barang ON barang.id = barang_diterima.barang_id JOIN pengguna ON pengguna.user_id = barang_diterima.giver_id JOIN gambar_barang ON barang_diterima.barang_id = gambar_barang.barang_id WHERE receiver_id = ?";
+
+      const [response] = await connection.query(sqlGetReceive, [receiver_id]);
+
+      if (response.length > 0) {
+        const newData = response.map((item) => {
+          return[
+            ...item,
+            item.tanggal = moment(item.tanggal).format("YYYY-MM-DD"),
+          ]
+        })
+
+        console.log(newData)
+
+        const reducedData = newData.reduce((acc, item) => {
+          const existing = acc.find((el) => el.nama_barang === item.nama_barang)
+
+          if (existing) {
+            existing.link_gambar.push(item.link_gambar)
+          } else {
+            acc.push({
+              ...item,
+              link_gambar: [item.link_gambar],
+            })
+          }
+
+          return acc;
+        }, [])
+
+        await connection.commit()
+
+        if (reducedData) {
+          res.status(200).json({
+            statusCode: 200,
+            message: "Success get receive things",
+            data: reducedData,
+          });
+        }
+      } else if (response.length === 0) {
+        res.status(400).json({
+          statusCode: 400,
+          message: "Failed get receive things, data not found",
+        });
+      }
+    } catch (error) {
+      await connection.rollback()
+      res.status(500).json({
+        statusCode: 500,
+        message: "Internal Server Error",
+      })
+    } finally {
+      connection.release()
     }
   },
 };

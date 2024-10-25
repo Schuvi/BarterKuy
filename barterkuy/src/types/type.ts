@@ -125,3 +125,11 @@ export interface stateChat {
   tujuan: string;
   listMessage: { msg: string; userId: string }[];
 }
+
+export interface receiveThings {
+  nama_lengkap: string;
+  nama_barang: string;
+  tanggal: string;
+  lokasi: string;
+  link_gambar: string[];
+}

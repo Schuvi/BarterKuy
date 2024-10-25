@@ -33,8 +33,8 @@ function Navbar() {
       <nav className="bg-color2 flex h-[7vh] p-2">
         <div className="container flex flex-row justify-around h-full">
           <img src={homeImg} alt="home" className="w-[10vw]" onClick={() => navigate("/")} />
-          <img src={chatImg} alt="chat" className="w-[10vw]" />
-          <img src={receiveImg} alt="receive" className="w-[10vw]" />
+          <img src={chatImg} alt="chat" className="w-[10vw]" onClick={() => navigate("/chatlist")} />
+          <img src={receiveImg} alt="receive" className="w-[10vw]" onClick={() => navigate(`/receive/${user_id}`)} />
           <img src={giveImg} alt="give" className="w-[10vw]" onClick={() => navigate("/give")}/>
           <img src={searchImg} alt="search" className="w-[10vw]" onClick={() => navigate("/search")}/>
           <img src={userImg} alt="user" className="w-[10vw]" onClick={() => navigate(`/profile/${user_id}`)}/>

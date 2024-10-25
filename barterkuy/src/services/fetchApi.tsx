@@ -1,9 +1,7 @@
 import { api, apiWilayah } from "./axiosConfig";
-import { useSelector } from "react-redux";
-import { RootStatePersist } from "@/redux/redux-persist/store-persist";
 
 export const fetchPosts = async (location: string, kategori?: string) => {
-  const response = await api.get("/posts", { 
+  const response = await api.get("/posts", {
     params: {
       lokasi: location,
       kategori: kategori,
@@ -17,7 +15,7 @@ export const fetchKab = async (provinsi: string) => {
   const response = await api.get("/kabupaten", {
     params: {
       prov: provinsi,
-    }
+    },
   });
 
   return response.data;
@@ -90,7 +88,7 @@ export const fetchProfile = async (user_id: string) => {
   const response = await api.get("/get/user", {
     params: {
       user_id: user_id,
-    }
+    },
   });
 
   return response.data;
@@ -102,9 +100,19 @@ export const fetchMessage = async (userId: string, tujuan: string, limit: number
       userId: userId,
       tujuan: tujuan,
       limit: limit,
-      offset: offset
-    }
+      offset: offset,
+    },
   });
 
-  return response.data.data
-}
+  return response.data.data;
+};
+
+export const fetchReceiveThings = async (user_id: string) => {
+  const response = await api.get("/get/receive", {
+    params: {
+      receiver_id: user_id,
+    },
+  });
+
+  return response.data.data;
+};

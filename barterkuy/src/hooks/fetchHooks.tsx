@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { fetchPosts, fetchKab, fetchDetail, fetchProvinsi, fetchKota, fetchKecamatan, fetchLiked, fetchSearch, fetchKategori, fetchProfile, fetchMessage } from "@/services/fetchApi";
+import { fetchPosts, fetchKab, fetchDetail, fetchProvinsi, fetchKota, fetchKecamatan, fetchLiked, fetchSearch, fetchKategori, fetchProfile, fetchMessage, fetchReceiveThings } from "@/services/fetchApi";
 
 export const usePosts = (location: string, kategori?: string) => {
   return useQuery({
@@ -101,5 +101,14 @@ export const fetchChatHistory = (userId: string, tujuan: string, limit: number, 
     retry: 1,
     refetchInterval: false,
     enabled: Boolean(userId && tujuan),
+  });
+};
+
+export const fetchReceive = (user_id: string) => {
+  return useQuery({
+    queryKey: ["receive", user_id],
+    queryFn: async ({ queryKey }) => fetchReceiveThings(queryKey[1] as string),
+    retry: 1,
+    refetchInterval: false,
   });
 };

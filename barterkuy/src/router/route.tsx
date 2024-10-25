@@ -11,6 +11,8 @@ import ProfilePage from "@/pages/profile/profilePage";
 import GiveThings from "@/pages/pengajuan/pengajuanPage";
 import ProtectedRoute from "./protectedRoute";
 import ChatPage from "@/pages/chat/chatPage";
+import ChatList from "@/pages/chat/chatList";
+import ReceiveThings from "@/pages/receive/receivePage";
 
 function Layout() {
   const location = useLocation();
@@ -107,6 +109,24 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <ChatPage />
+          </ProtectedRoute>
+        ),
+        caseSensitive: true,
+      },
+      {
+        path: "/chatlist",
+        element: (
+          <ProtectedRoute>
+            <ChatList />
+          </ProtectedRoute>
+        ),
+        caseSensitive: true,
+      },
+      {
+        path: "/receive/:user_id",
+        element: (
+          <ProtectedRoute>
+            <ReceiveThings />
           </ProtectedRoute>
         ),
         caseSensitive: true,

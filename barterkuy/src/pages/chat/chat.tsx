@@ -31,7 +31,18 @@ function Chat() {
     listMessage: [],
   });
 
+  const messageEndRef = useRef<HTMLDivElement | null>(null);
+
+  const scrollToBottom = () => {
+    messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
   useEffect(() => {
+    scrollToBottom(); // Scroll ke bawah saat ada perubahan di listMessage
+  }, [msg.listMessage]);
+
+  useEffect(() => {
+
     // Emit event login ketika user terhubung
     socket.emit("login", userId);
     console.log(`User ${userId} logged in`);
@@ -50,7 +61,6 @@ function Chat() {
         listMessage: [...prevState.listMessage, msgObj],
       }));
     };
-    console.log(msg.listMessage);
 
     // Pasang listener untuk event 'chat message'
     socket.on("chat message", handleMessage);
@@ -103,28 +113,31 @@ function Chat() {
 
   return (
     <>
-      <div className="container overflow-y-auto h-[50vh] mb-2">
-        {msg.listMessage.map((msgObj, index) => (
-          <div key={index} className={`flex ${msgObj.userId === userId ? "justify-end" : "justify-start"} mb-2`}>
-            <div
-              className={`${msgObj.userId === userId ? "bg-blue-500 text-white" : "bg-gray-300 text-black"} p-3 ${
-                msgObj.userId === userId ? "rounded-ss-xl rounded-se-xl rounded-es-xl" : "rounded-ss-xl rounded-se-xl rounded-ee-xl"
-              } max-w-xs`}
-            >
-              {msgObj.msg}
+      <section>
+        <div className="container overflow-y-auto h-[50vh] mb-2">
+          {msg.listMessage.map((msgObj, index) => (
+            <div key={index} className={`flex ${msgObj.userId === userId ? "justify-end" : "justify-start"} mb-2`}>
+              <div
+                className={`${msgObj.userId === userId ? "bg-blue-500 text-white" : "bg-gray-300 text-black"} p-3 ${
+                  msgObj.userId === userId ? "rounded-ss-xl rounded-se-xl rounded-es-xl" : "rounded-ss-xl rounded-se-xl rounded-ee-xl"
+                } max-w-xs`}
+              >
+                {msgObj.msg}
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+          <div ref={messageEndRef}></div>
+        </div>
 
-      <div className={`container flex absolute gap-4 bottom-0 mb-10`}>
-        <Input type="text" placeholder="Tujuan" className="hidden" value={msg.tujuan} onChange={(e) => setMsg((prevState) => ({ ...prevState, tujuan: e.target.value }))} />
-        <Input type="text" placeholder="Tulis pesan..." value={msg.message} onChange={(e) => setMsg((prevState) => ({ ...prevState, message: e.target.value }))} />
+        <div className={`container flex absolute gap-4 bottom-0 left-0 right-0 p-2 mb-10`}>
+          <Input type="text" placeholder="Tujuan" className="hidden" value={msg.tujuan} onChange={(e) => setMsg((prevState) => ({ ...prevState, tujuan: e.target.value }))} />
+          <Input type="text" placeholder="Tulis pesan..." value={msg.message} onChange={(e) => setMsg((prevState) => ({ ...prevState, message: e.target.value }))} />
 
-        <Button type="button" className="bg-color2" onClick={sendMessage}>
-          Kirim Pesan
-        </Button>
-      </div>
+          <Button type="button" className="bg-color2" onClick={sendMessage} disabled={msg.message === ""}>
+            Kirim Pesan
+          </Button>
+        </div>
+      </section>
     </>
   );
 }

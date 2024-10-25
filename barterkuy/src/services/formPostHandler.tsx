@@ -514,7 +514,7 @@ export const handleEditLocationProfile = (onClose: () => void) => {
                 location: kota,
                 provinsi: value.provinsi,
                 kecamatan: value.kecamatan,
-                kabupaten: value.kota
+                kabupaten: value.kota,
               })
             );
             await queryClient.invalidateQueries({ queryKey: ["profile", user] });
@@ -608,4 +608,38 @@ export const logout = () => {
       }
     },
   });
+};
+
+export const receiveThingsHandler = async (giver_id: string, receiver_id: string, id_barang: string) => {
+  const MySwal = withReactContent(Swal);
+
+  try {
+    const response = await api.post(
+      "/post/receive",
+      {},
+      {
+        params: {
+          giver_id: giver_id,
+          receiver_id: receiver_id,
+          id_barang: id_barang,
+        },
+      }
+    );
+
+    if (response.data.message === "Success receive things") {
+      return true;
+    }
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const errorStatus = error.response?.status;
+
+      if (errorStatus) {
+        MySwal.fire({
+          title: "Gagal",
+          text: "Kesalahan server, coba lagi nanti",
+          icon: "error",
+        });
+      }
+    }
+  }
 };
